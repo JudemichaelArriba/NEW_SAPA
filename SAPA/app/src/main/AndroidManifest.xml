@@ -18,6 +18,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".bills_page"
+            android:exported="false" />
+        <activity
+            android:name=".selected_appointment"
+            android:exported="false" />
+        <activity
             android:name=".make_appointment"
             android:exported="false" />
         <activity

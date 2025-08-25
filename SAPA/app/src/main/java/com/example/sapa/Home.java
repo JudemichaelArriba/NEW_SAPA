@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,46 +15,38 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
+import com.example.sapa.RecycleviewAdapter.UpcomingAppointmentsAdapter;
 import com.example.sapa.databinding.FragmentHomeBinding;
+import com.example.sapa.models.Hospitals;
+import com.example.sapa.models.UpcomingAppointment;
 import com.example.sapa.models.UserData;
 import com.example.sapa.models.UserProfileResponse;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.example.sapa.RecycleviewAdapter.HospitalAdapter;
-import com.example.sapa.models.Hospitals;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class Home extends Fragment {
-
-
-    private HospitalAdapter hospitalAdapter;
-    private List<Hospitals> hospitalList = new ArrayList<>();
-
 
     private FragmentHomeBinding binding;
 
-    public Home() {
-    }
 
-    public static Home newInstance(String param1, String param2) {
-        Home fragment = new Home();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private UpcomingAppointmentsAdapter appointmentAdapter;
+    private List<UpcomingAppointment> appointmentList = new ArrayList<>();
+
+    public Home() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
+        setupAppointmentsRecycler();
 
         SharedPreferences sharedPreferences = requireActivity()
                 .getSharedPreferences("user_session", requireActivity().MODE_PRIVATE);
@@ -61,14 +54,20 @@ public class Home extends Fragment {
 
         if (!userId.isEmpty()) {
             fetchUserProfile(userId);
+            fetchUpcomingAppointments(userId);
         } else {
             Toast.makeText(getActivity(), "User not logged in", Toast.LENGTH_SHORT).show();
         }
 
-
         return binding.getRoot();
+    }
 
+    private void setupAppointmentsRecycler() {
+        appointmentAdapter = new UpcomingAppointmentsAdapter(requireContext(), appointmentList, appt -> {
 
+        });
+        binding.upcomingAppointmentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.upcomingAppointmentsRecyclerView.setAdapter(appointmentAdapter);
     }
 
     private void fetchUserProfile(String userId) {
@@ -98,13 +97,11 @@ public class Home extends Fragment {
         });
     }
 
-
     private void setTopCard(UserData data) {
         binding.userName.setText(data.getUsername());
-        Log.e("homeProfile", "Request status:  " +data.getStatus());
         if (data.getStatus().equalsIgnoreCase("Pending")){
             binding.requestStatus.setText("Waiting for Approval");
-        }else{
+        } else {
             binding.requestStatus.setText("Account Approved");
         }
 
@@ -112,6 +109,7 @@ public class Home extends Fragment {
                 .edit()
                 .putString("request_status", data.getStatus())
                 .apply();
+
         if (data.getProfileImage() != null && !data.getProfileImage().isEmpty()) {
             Glide.with(this)
                     .load(data.getProfileImage())
@@ -120,5 +118,45 @@ public class Home extends Fragment {
                     .error(R.drawable.circle_background)
                     .into(binding.profileImage);
         }
+    }
+
+    private void fetchUpcomingAppointments(String userId) {
+        ApiInterface api = ApiClient.getClient(requireContext()).create(ApiInterface.class);
+
+        api.getUpcomingAppointments(userId).enqueue(new Callback<List<UpcomingAppointment>>() {
+            @Override
+            public void onResponse(Call<List<UpcomingAppointment>> call, Response<List<UpcomingAppointment>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<UpcomingAppointment> allAppointments = response.body();
+
+                    List<UpcomingAppointment> approvedAppointments = new ArrayList<>();
+                    for (UpcomingAppointment appt : allAppointments) {
+                        if ("Approved".equalsIgnoreCase(appt.getAppointmentStatus())) {
+                            approvedAppointments.add(appt);
+                        }
+                    }
+
+
+                    Collections.sort(approvedAppointments, Comparator.comparing(UpcomingAppointment::getStartTime));
+
+
+                    List<UpcomingAppointment> top3Appointments = approvedAppointments.size() > 3
+                            ? approvedAppointments.subList(0, 3)
+                            : approvedAppointments;
+
+                    appointmentList.clear();
+                    appointmentList.addAll(top3Appointments);
+                    appointmentAdapter.notifyDataSetChanged();
+
+                } else {
+                    Log.e("HomeAppointments", "Failed to fetch appointments: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<UpcomingAppointment>> call, Throwable t) {
+                Log.e("HomeAppointments", "API call failed: " + t.getMessage());
+            }
+        });
     }
 }

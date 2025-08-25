@@ -20,5 +20,15 @@
         <item>Approved</item>
     </string-array>
 
+
+    <string-array name="status_appointments">
+        <item>All</item>
+        <item>Approved</item>
+        <item>Pending</item>
+        <item>Cancelled</item>
+
+    </string-array>
+
+
     <string name="title_activity_add_student_page">add_student_page</string>
 </resources>

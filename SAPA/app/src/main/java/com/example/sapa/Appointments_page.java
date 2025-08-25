@@ -10,10 +10,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.example.sapa.ApiAndInterface.ApiClient;
@@ -34,9 +37,11 @@ public class Appointments_page extends Fragment {
 
     private FragmentAppointmentsPageBinding binding;
     private List<UpcomingAppointment> appointmentList;
+    private List<UpcomingAppointment> allAppointments;
     private UpcomingAppointmentsAdapter adapter;
 
-    public Appointments_page() {}
+    public Appointments_page() {
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -50,6 +55,7 @@ public class Appointments_page extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         appointmentList = new ArrayList<>();
+        allAppointments = new ArrayList<>();
         adapter = new UpcomingAppointmentsAdapter(requireContext(), appointmentList, appointment -> {
 
         });
@@ -62,6 +68,35 @@ public class Appointments_page extends Fragment {
         binding.fab.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), select_school_for_appointment.class);
             startActivity(intent);
+        });
+
+        binding.statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedStatus = parent.getItemAtPosition(position).toString();
+                filterAppointments(selectedStatus, binding.searchBar.getText().toString().trim());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+
+        binding.searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String status = binding.statusSpinner.getSelectedItem().toString();
+                filterAppointments(status, s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -87,7 +122,12 @@ public class Appointments_page extends Fragment {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         appointmentList.clear();
-                        appointmentList.addAll(removeDuplicateAppointments(response.body())); // ✅ remove duplicates by slotId
+                        allAppointments.clear();
+
+                        List<UpcomingAppointment> uniqueAppointments = removeDuplicateAppointments(response.body());
+                        appointmentList.addAll(uniqueAppointments);
+                        allAppointments.addAll(uniqueAppointments);
+
                         adapter.notifyDataSetChanged();
                         Log.d("Appointments_page", "Fetched appointments: " + appointmentList.toString());
                         Toast.makeText(requireContext(), "Fetched " + appointmentList.size() + " unique appointments", Toast.LENGTH_SHORT).show();
@@ -114,6 +154,27 @@ public class Appointments_page extends Fragment {
         });
     }
 
+
+    private void filterAppointments(String status, String query) {
+        appointmentList.clear();
+
+        for (UpcomingAppointment appt : allAppointments) {
+            boolean matchesStatus = status.equals("All") ||
+                    (appt.getAppointmentStatus() != null && appt.getAppointmentStatus().equalsIgnoreCase(status));
+
+            boolean matchesSearch = query.isEmpty() ||
+                    (appt.getHospitalName() != null && appt.getHospitalName().toLowerCase().contains(query.toLowerCase())) ||
+                    (appt.getSectionName() != null && appt.getSectionName().toLowerCase().contains(query.toLowerCase())) ||
+                    (appt.getAppointmentStatus() != null && appt.getAppointmentStatus().toLowerCase().contains(query.toLowerCase()));
+
+            if (matchesStatus && matchesSearch) {
+                appointmentList.add(appt);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+        Log.d("Appointments_page", "Filtered by status: " + status + ", query: " + query + ", count: " + appointmentList.size());
+    }
 
     private List<UpcomingAppointment> removeDuplicateAppointments(List<UpcomingAppointment> appointments) {
         List<UpcomingAppointment> uniqueList = new ArrayList<>();
