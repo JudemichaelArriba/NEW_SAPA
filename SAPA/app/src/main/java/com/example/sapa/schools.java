@@ -32,11 +32,10 @@ import retrofit2.Response;
 public class schools extends AppCompatActivity {
     private ActivitySchoolsBinding binding;
     private List<School> schoolList = new ArrayList<>();
+    private List<School> fullSchoolList = new ArrayList<>();
     private SchoolAdapter adapter;
     private ApiInterface apiInterface;
     private boolean isFetching = false;
-    List<School> fullSchoolList = new ArrayList<>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +51,10 @@ public class schools extends AppCompatActivity {
             return insets;
         });
 
-
         RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SchoolAdapter(schoolList, this, school -> {
             Intent intent = new Intent(schools.this, schoolInfo.class);
-
             intent.putExtra("school_id", school.getSchoolId());
             intent.putExtra("school_name", school.getSchoolName());
             intent.putExtra("school_address", school.getSchoolAddress());
@@ -69,40 +66,37 @@ public class schools extends AppCompatActivity {
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
-        apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
+        apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
         fetchSchools();
 
         binding.backButton.setOnClickListener(v -> finish());
 
         binding.fab.setOnClickListener(view -> {
-
             String coordinatorId = getSharedPreferences("user_session", MODE_PRIVATE)
                     .getString("coordinator_id", null);
             String requestStatus = getSharedPreferences("user_session", MODE_PRIVATE)
                     .getString("request_status", null);
+
             Log.d("SchoolsActivity", "Coordinator ID: " + coordinatorId);
             Log.d("SchoolsActivity", "request_status: " + requestStatus);
+
             if (coordinatorId == null || coordinatorId.isEmpty()) {
                 Toast.makeText(schools.this, "Coordinator ID not found.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (requestStatus.equalsIgnoreCase("Pending")) {
+            if ("Pending".equalsIgnoreCase(requestStatus)) {
                 KAlertDialog successDialog = new KAlertDialog(schools.this, true);
                 successDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
                 successDialog.setTitleText("Status is Pending!")
                         .setContentText("Your status is still Pending!")
                         .setConfirmText("OK")
-                        .setConfirmClickListener(sweetAlertDialog -> {
-                            sweetAlertDialog.dismissWithAnimation();
-
-                        })
+                        .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
                         .show();
                 return;
             }
-
 
             Intent intent = new Intent(schools.this, add_schools.class);
             startActivity(intent);
@@ -112,30 +106,47 @@ public class schools extends AppCompatActivity {
         binding.statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedStatus = parent.getItemAtPosition(position).toString();
-
-                if (selectedStatus.equals("All")) {
-                    adapter.updateData(new ArrayList<>(fullSchoolList));
-                } else {
-                    List<School> filteredList = new ArrayList<>();
-                    for (School school : fullSchoolList) {
-                        if (school.getSchoolStatus().equalsIgnoreCase(selectedStatus)) {
-                            filteredList.add(school);
-                        }
-                    }
-                    adapter.updateData(filteredList);
-                }
+                filterSchools(binding.search.getText().toString());
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
 
+        binding.search.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterSchools(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
     }
 
+    private void filterSchools(String query) {
+        String selectedStatus = binding.statusSpinner.getSelectedItem().toString();
+        List<School> filteredList = new ArrayList<>();
+
+        for (School school : fullSchoolList) {
+            boolean matchesQuery = school.getSchoolName().toLowerCase().contains(query.toLowerCase()) ||
+                    school.getSchoolAddress().toLowerCase().contains(query.toLowerCase()) ||
+                    school.getSchoolStatus().toLowerCase().contains(query.toLowerCase());
+
+            boolean matchesStatus = selectedStatus.equals("All") ||
+                    school.getSchoolStatus().equalsIgnoreCase(selectedStatus);
+
+            if (matchesQuery && matchesStatus) {
+                filteredList.add(school);
+            }
+        }
+
+        adapter.updateData(filteredList);
+    }
 
     private void fetchSchools() {
         if (isFetching) return;
@@ -157,42 +168,25 @@ public class schools extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<School>> call, Response<List<School>> response) {
                 isFetching = false;
-                if (response.isSuccessful()) {
-                    List<School> responseList = response.body();
-                    if (responseList != null && !responseList.isEmpty()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    fullSchoolList.clear();
+                    fullSchoolList.addAll(response.body());
 
-
-                        fullSchoolList.clear();
-                        fullSchoolList.addAll(responseList);
-                        schoolList.clear();
-                        schoolList.addAll(responseList);
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Log.d("SchoolsActivity", "Empty list or null body");
-                        Toast.makeText(schools.this, "No schools found for this coordinator", Toast.LENGTH_SHORT).show();
-                    }
+                    schoolList.clear();
+                    schoolList.addAll(response.body());
+                    adapter.notifyDataSetChanged();
                 } else {
-
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "null";
-                        Log.e("SchoolsActivity", "Error Body: " + errorBody);
-                    } catch (Exception e) {
-                        Log.e("SchoolsActivity", "Error reading errorBody", e);
-                    }
-
-                    Toast.makeText(schools.this, "Server returned error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(schools.this, "No schools found for this coordinator", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<School>> call, Throwable t) {
                 isFetching = false;
-                Log.e("SchoolsActivity", "API Failure: " + t.getMessage(), t);
                 Toast.makeText(schools.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 
     @Override
     protected void onResume() {

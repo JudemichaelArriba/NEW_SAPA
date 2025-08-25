@@ -56,6 +56,7 @@
                         android:layout_marginEnd="12dp"/>
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/search"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -75,13 +76,33 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp">
+
+        <Spinner
+            android:id="@+id/schoolSpinner"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_alignParentEnd="true"
+            android:spinnerMode="dropdown" />
+    </RelativeLayout>
+
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:padding="4dp" />
+        android:layout_marginTop="100dp"
+        android:padding="4dp"
+        />
 
 
 

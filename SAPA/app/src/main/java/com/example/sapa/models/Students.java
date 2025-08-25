@@ -28,6 +28,9 @@ public class Students {
     @SerializedName("school_id")
     private String schoolId;
 
+    @SerializedName("school_name")
+    private String schoolName;
+
     public String getId() {
         return id;
     }
@@ -90,5 +93,13 @@ public class Students {
 
     public void setSchoolId(String schoolId) {
         this.schoolId = schoolId;
+    }
+
+    public String getSchoolName() {
+        return schoolName;
+    }
+
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
     }
 }

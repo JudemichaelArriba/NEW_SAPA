@@ -3,7 +3,6 @@ package com.example.sapa;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -31,6 +30,7 @@ public class select_slot extends AppCompatActivity {
 
     private slotAdapter adapter;
     private List<hospitalSlots> slotList = new ArrayList<>();
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +43,10 @@ public class select_slot extends AppCompatActivity {
         sectionId = getIntent().getIntExtra("section_id", 0);
         hospitalId = getIntent().getStringExtra("hospital_id");
         schoolId = getIntent().getStringExtra("school_id");
-
+        userId = getIntent().getStringExtra("user_id");
         Log.d("SelectSlot", "Received section_id: " + sectionId);
         Log.d("SelectSlot", "Received hospital_id: " + hospitalId);
         Log.d("SelectSlot", "Received school_id: " + schoolId);
-
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new slotAdapter(this, slotList, slot -> {
@@ -63,11 +62,10 @@ public class select_slot extends AppCompatActivity {
             intent.putExtra("max_capacity", slot.getMax_capacity());
             intent.putExtra("hospital_name", slot.getHospital_name());
             intent.putExtra("section_name", slot.getSection_name());
-
+            intent.putExtra("user_id", userId);
             startActivity(intent);
         });
         binding.recyclerView.setAdapter(adapter);
-
 
         fetchSlots(sectionId);
 
@@ -83,9 +81,13 @@ public class select_slot extends AppCompatActivity {
             public void onResponse(Call<List<hospitalSlots>> call, Response<List<hospitalSlots>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     slotList.clear();
-                    slotList.addAll(response.body());
+                    for (hospitalSlots slot : response.body()) {
+                        if (slot.getMax_capacity() > 0) {
+                            slotList.add(slot);
+                        }
+                    }
                     adapter.notifyDataSetChanged();
-                    Log.d("SelectSlot", "Slots fetched: " + slotList.size());
+                    Log.d("SelectSlot", "Available slots fetched: " + slotList.size());
                 } else {
                     Log.e("SelectSlot", "API Error: " + response.message());
                     Toast.makeText(select_slot.this, "No slots found", Toast.LENGTH_SHORT).show();

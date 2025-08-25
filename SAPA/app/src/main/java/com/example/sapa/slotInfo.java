@@ -39,7 +39,7 @@ public class slotInfo extends AppCompatActivity {
         int maxCapacity = getIntent().getIntExtra("max_capacity", 0);
         String hospitalName = getIntent().getStringExtra("hospital_name");
         String sectionName = getIntent().getStringExtra("section_name");
-
+        String userId = getIntent().getStringExtra("user_id");
         int sectionId = getIntent().getIntExtra("section_id", 0);
         String hospitalId = getIntent().getStringExtra("hospital_id");
         String schoolId = getIntent().getStringExtra("school_id");
@@ -75,6 +75,7 @@ public class slotInfo extends AppCompatActivity {
             intent.putExtra("school_id", schoolId);
             intent.putExtra("slot_id", slotId);
             intent.putExtra("billing", billing);
+            intent.putExtra("user_id", userId);
             startActivity(intent);
 
         });

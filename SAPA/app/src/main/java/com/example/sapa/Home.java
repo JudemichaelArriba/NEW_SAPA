@@ -101,10 +101,16 @@ public class Home extends Fragment {
 
     private void setTopCard(UserData data) {
         binding.userName.setText(data.getUsername());
-        binding.requestStatus.setText(data.getStatus());
+        Log.e("homeProfile", "Request status:  " +data.getStatus());
+        if (data.getStatus().equalsIgnoreCase("Pending")){
+            binding.requestStatus.setText("Waiting for Approval");
+        }else{
+            binding.requestStatus.setText("Account Approved");
+        }
+
         requireActivity().getSharedPreferences("user_session", requireActivity().MODE_PRIVATE)
                 .edit()
-                .putString("request_status", data.getStatus())  // overwrite request_status with real UserData status
+                .putString("request_status", data.getStatus())
                 .apply();
         if (data.getProfileImage() != null && !data.getProfileImage().isEmpty()) {
             Glide.with(this)

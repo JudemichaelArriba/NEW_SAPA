@@ -15,8 +15,9 @@
     <color name="purple_700">#3700B3</color>
     <color name="teal_200">#03DAC5</color>
     <color name="teal_700">#018786</color>
+    <color name="green">#23BA62</color>
     <color name="gray_200">#EEEEEE</color>
-<color name="gray_500">#9E9E9E</color>
+<color name="gray_500">#E9E9E9</color>
 <color name="blue_500">#4285F4</color>
     <color name="nav">#D1D0D0</color>
 </resources>

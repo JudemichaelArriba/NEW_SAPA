@@ -1,5 +1,6 @@
 package com.example.sapa;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,10 +11,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.developer.kalert.KAlertDialog;
+import com.example.sapa.ApiAndInterface.ApiClient;
+import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.databinding.ActivityMakeAppointmentBinding;
-import com.example.sapa.models.Students;
+import com.example.sapa.models.AppointmentRequest;
+import com.example.sapa.models.defaultResponse;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class make_appointment extends AppCompatActivity {
 
@@ -33,7 +42,7 @@ public class make_appointment extends AppCompatActivity {
             return insets;
         });
 
-
+        // Get intent extras
         String slotName = getIntent().getStringExtra("slot_name");
         String startTime = getIntent().getStringExtra("start_time");
         String endTime = getIntent().getStringExtra("end_time");
@@ -45,41 +54,82 @@ public class make_appointment extends AppCompatActivity {
         String schoolId = getIntent().getStringExtra("school_id");
         int slotId = getIntent().getIntExtra("slot_id", 0);
         double billing = getIntent().getDoubleExtra("billing", 0.0);
-        ArrayList<Students> selectedStudents = (ArrayList<Students>) getIntent().getSerializableExtra("selected_students");
+        String userId = getIntent().getStringExtra("user_id"); // Receive user_id
+        ArrayList<String> selectedStudentIds = getIntent().getStringArrayListExtra("selected_student_ids");
 
 
-        Log.d("MakeAppointment", "slotName: " + slotName);
-        Log.d("MakeAppointment", "startTime: " + startTime);
-        Log.d("MakeAppointment", "endTime: " + endTime);
-        Log.d("MakeAppointment", "maxCapacity: " + maxCapacity);
-        Log.d("MakeAppointment", "hospitalName: " + hospitalName);
-        Log.d("MakeAppointment", "sectionName: " + sectionName);
-        Log.d("MakeAppointment", "sectionId: " + sectionId);
-        Log.d("MakeAppointment", "hospitalId: " + hospitalId);
-        Log.d("MakeAppointment", "schoolId: " + schoolId);
-        Log.d("MakeAppointment", "slotId: " + slotId);
-        Log.d("MakeAppointment", "billing: " + billing);
-        Log.d("MakeAppointment", "selectedStudents size: " + (selectedStudents != null ? selectedStudents.size() : 0));
-        Log.d("MakeAppointment", "student id: " + (selectedStudents != null ? selectedStudents.size() : 0));
 
+
+        Log.d("MakeAppointment", "userId: " + userId);
+        Log.d("MakeAppointment", "students: " + selectedStudentIds);
+        // Fill UI
         binding.slotNameValue.setText(slotName != null ? slotName : "N/A");
         binding.startTimeValue.setText(startTime != null ? startTime : "N/A");
         binding.endTimeValue.setText(endTime != null ? endTime : "N/A");
-        binding.maxCapacityValue.setText(String.valueOf(maxCapacity));
+        binding.studentsCount.setText(String.valueOf(selectedStudentIds.size()));
         binding.hospitalNameValue.setText(hospitalName != null ? hospitalName : "N/A");
         binding.sectionNameValue.setText(sectionName != null ? sectionName : "N/A");
         binding.paymentValue.setText(String.valueOf(billing));
 
-
+        // Confirm Button
         binding.actionButton.setOnClickListener(v -> {
-            if (selectedStudents != null && selectedStudents.size() > maxCapacity) {
+            if (selectedStudentIds != null && selectedStudentIds.size() > maxCapacity) {
                 Toast.makeText(this, "Selected students exceed maximum capacity", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Toast.makeText(this, "Appointment confirmed for " +
-                    (selectedStudents != null ? selectedStudents.size() : 0) + " students", Toast.LENGTH_SHORT).show();
-        });
 
+            // ✅ Get user ID from SharedPreferences
+
+
+            if (userId == null) {
+                Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+
+            // Build request
+            Log.d("MakeAppointment", "Sending student IDs: " + selectedStudentIds);
+            AppointmentRequest request = new AppointmentRequest(slotId, userId, selectedStudentIds);
+
+            // ✅ Pass activity context to ApiClient
+            ApiInterface api = ApiClient.getClient(make_appointment.this).create(ApiInterface.class);
+
+            api.addAppointment(request).enqueue(new Callback<defaultResponse>() {
+                @Override
+                public void onResponse(Call<defaultResponse> call, Response<defaultResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        defaultResponse res = response.body();
+//                        Toast.makeText(make_appointment.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        if ("success".equalsIgnoreCase(res.getStatus())) {
+
+
+                            KAlertDialog successDialog = new KAlertDialog(make_appointment.this, true);
+                            successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                            successDialog.setTitleText("Successful")
+                                    .setContentText("Successfully Booked!")
+                                    .setConfirmText("OK")
+                                    .confirmButtonColor(R.color.mainColor)
+                                    .setConfirmClickListener(sweetAlertDialog -> {
+                                        sweetAlertDialog.dismissWithAnimation();
+                                        finish();
+                                    })
+                                    .show();
+
+                        }
+                    } else {
+                        Toast.makeText(make_appointment.this, "Failed to add appointment", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<defaultResponse> call, Throwable t) {
+                    Toast.makeText(make_appointment.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("MakeAppointment", "API Error", t);
+                }
+            });
+        });
 
         binding.backButton.setOnClickListener(v -> finish());
     }

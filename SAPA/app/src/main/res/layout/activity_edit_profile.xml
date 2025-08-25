@@ -53,7 +53,7 @@
                 android:layout_width="142dp"
                 android:layout_height="142dp"
                 android:layout_marginTop="32dp"
-                android:background="@drawable/ic_launcher_background"
+                android:background="@color/sixth"
                 android:padding="2dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"

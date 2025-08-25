@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,12 +23,26 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
     private List<Students> studentList;
     private Context context;
-    private Set<Integer> selectedPositions = new HashSet<>();
+
+    private Set<String> selectedIds = new HashSet<>();
+    private boolean selectionMode = false;
+    private boolean enableSelection;
+
+    public interface OnSelectionChangeListener {
+        void onSelectionChanged(int count);
+    }
+
     private OnSelectionChangeListener selectionChangeListener;
 
-    public StudentAdapter(List<Students> studentList, Context context) {
+    public void setOnSelectionChangeListener(OnSelectionChangeListener listener) {
+        this.selectionChangeListener = listener;
+    }
+
+
+    public StudentAdapter(List<Students> studentList, Context context, boolean enableSelection) {
         this.studentList = studentList;
         this.context = context;
+        this.enableSelection = enableSelection;
     }
 
     @NonNull
@@ -41,24 +56,40 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         Students student = studentList.get(position);
+
         holder.studentName.setText(student.getStudentFullname());
         holder.studentEmail.setText(student.getEmail());
-        holder.studentMobile.setText(student.getContactNo());
+        holder.studentMobile.setText(student.getSchoolName());
 
-        holder.itemView.setBackgroundColor(selectedPositions.contains(position) ?
-                Color.parseColor("#D0E8FF") : Color.TRANSPARENT);
+
+//        if (selectedIds.contains(student.getId())) {
+//            holder.itemView.setBackgroundColor(Color.LTGRAY);
+//        } else {
+//            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+//        }
+
+
+        holder.studentCheckBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+        holder.studentCheckBox.setChecked(selectedIds.contains(student.getId()));
+
 
         holder.itemView.setOnClickListener(v -> {
-            if (selectedPositions.contains(position)) {
-                selectedPositions.remove(position);
-            } else {
-                selectedPositions.add(position);
+            int currentPos = holder.getAdapterPosition();
+            if (currentPos != RecyclerView.NO_POSITION) {
+                if (enableSelection && selectionMode) {
+                    toggleSelection(student);
+                }
             }
-            notifyItemChanged(position);
+        });
 
-            if (selectionChangeListener != null) {
-                selectionChangeListener.onSelectionChanged(selectedPositions.size());
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (enableSelection && !selectionMode) {
+                selectionMode = true;
+                toggleSelection(student);
+                return true;
             }
+            return false;
         });
     }
 
@@ -67,39 +98,60 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         return studentList.size();
     }
 
+    private void toggleSelection(Students student) {
+        if (selectedIds.contains(student.getId())) {
+            selectedIds.remove(student.getId());
+        } else {
+            selectedIds.add(student.getId());
+        }
+        notifyDataSetChanged();
+
+        if (selectionChangeListener != null) {
+            selectionChangeListener.onSelectionChanged(selectedIds.size());
+        }
+    }
+
     public static class StudentViewHolder extends RecyclerView.ViewHolder {
         TextView studentName, studentEmail, studentMobile;
+        CheckBox studentCheckBox;
 
         public StudentViewHolder(@NonNull View itemView) {
             super(itemView);
             studentName = itemView.findViewById(R.id.studentName);
             studentEmail = itemView.findViewById(R.id.studentEmail);
             studentMobile = itemView.findViewById(R.id.studentMobile);
+            studentCheckBox = itemView.findViewById(R.id.studentCheckBox);
         }
     }
 
     public List<Students> getSelectedStudents() {
-        List<Students> selectedStudents = new ArrayList<>();
-        for (Integer pos : selectedPositions) {
-            if (pos >= 0 && pos < studentList.size()) {
-                selectedStudents.add(studentList.get(pos));
+        List<Students> selected = new ArrayList<>();
+        for (Students s : studentList) {
+            if (selectedIds.contains(s.getId())) {
+                selected.add(s);
             }
         }
-        return selectedStudents;
+        return selected;
     }
 
     public void updateData(List<Students> newStudents) {
-        studentList.clear();
-        studentList.addAll(newStudents);
-        selectedPositions.clear();
+        this.studentList.clear();
+        this.studentList.addAll(newStudents);
+        selectedIds.clear();
         notifyDataSetChanged();
+
+        if (selectionChangeListener != null) {
+            selectionChangeListener.onSelectionChanged(0);
+        }
     }
 
-    public interface OnSelectionChangeListener {
-        void onSelectionChanged(int selectedCount);
-    }
 
-    public void setOnSelectionChangeListener(OnSelectionChangeListener listener) {
-        this.selectionChangeListener = listener;
+    public void clearSelection() {
+        selectionMode = false;
+        selectedIds.clear();
+        notifyDataSetChanged();
+        if (selectionChangeListener != null) {
+            selectionChangeListener.onSelectionChanged(0);
+        }
     }
 }

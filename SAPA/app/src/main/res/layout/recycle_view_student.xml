@@ -4,59 +4,73 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="-20sp">
+    android:padding="8dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/recycle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        app:cardElevation="4dp"
+        app:cardElevation="2dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="8dp">
+        android:layout_margin="4dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp">
-
+            android:padding="12dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/text_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_toStartOf="@+id/studentCheckBox"
+                android:layout_centerVertical="true"
                 android:orientation="vertical"
-                android:gravity="center_vertical">
+                android:layout_marginEnd="12dp">
 
                 <TextView
                     android:id="@+id/studentName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Student Name"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="2dp"
+                    android:textColor="@color/mainColor"/>
 
                 <TextView
                     android:id="@+id/studentEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Student Email"
-                    android:textSize="14sp"
-                    android:textColor="#555555" />
+                    android:textSize="13sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="2dp" />
 
                 <TextView
                     android:id="@+id/studentMobile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Student Mobile"
-                    android:textSize="14sp"
-                    android:textColor="@color/mainColor" />
+                    android:text="Student School"
+                    android:textSize="13sp"
+                    android:textColor="@color/green" />
 
             </LinearLayout>
-        </LinearLayout>
+
+            <CheckBox
+                android:id="@+id/studentCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:visibility="invisible"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+
+        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

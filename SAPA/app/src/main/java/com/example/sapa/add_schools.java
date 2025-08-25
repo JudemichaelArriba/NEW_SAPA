@@ -164,42 +164,40 @@ public class add_schools extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
 
+                        if ("success".equals(response.body().getStatus())) {
 
-                        KAlertDialog warningDialog = new KAlertDialog(add_schools.this, true); // true = cancelable
-                        warningDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
-                        warningDialog.setTitleText(response.body().getMessage())
-                                .setConfirmText("OK")
-                                .confirmButtonColor(R.color.mainColor)
-                                .setConfirmClickListener(sweetAlertDialog -> {
-                                    sweetAlertDialog.dismissWithAnimation();
-                                    finish();
-                                })
-                                .show();
-
-//                        Toast.makeText(add_schools.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                        if (response.body().getStatus().equals("success")) {
-
-
-                            KAlertDialog successDialog = new KAlertDialog(add_schools.this, true); // true = cancelable
+                            KAlertDialog successDialog = new KAlertDialog(add_schools.this, true);
                             successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
                             successDialog.setTitleText("Successfully Added!")
+                                    .setContentText(response.body().getMessage())
                                     .setConfirmText("OK")
                                     .confirmButtonColor(R.color.mainColor)
                                     .setConfirmClickListener(sweetAlertDialog -> {
                                         sweetAlertDialog.dismissWithAnimation();
-
+                                        finish();
                                     })
                                     .show();
 
+                        } else {
 
+                            KAlertDialog warningDialog = new KAlertDialog(add_schools.this, true);
+                            warningDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+                            warningDialog.setTitleText(response.body().getMessage())
+                                    .setConfirmText("OK")
+                                    .confirmButtonColor(R.color.mainColor)
+                                    .setConfirmClickListener(sweetAlertDialog -> {
+                                        sweetAlertDialog.dismissWithAnimation();
+                                    })
+                                    .show();
                         }
                     }
                 } else {
                     try {
                         String errorBody = response.errorBody().string();
-                        KAlertDialog successDialog = new KAlertDialog(add_schools.this, true);
-                        successDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
-                        successDialog.setTitleText(errorBody)
+                        KAlertDialog errorDialog = new KAlertDialog(add_schools.this, true);
+                        errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                        errorDialog.setTitleText("Server Error")
+                                .setContentText(errorBody)
                                 .setConfirmText("OK")
                                 .confirmButtonColor(R.color.mainColor)
                                 .setConfirmClickListener(sweetAlertDialog -> {
@@ -207,23 +205,21 @@ public class add_schools extends AppCompatActivity {
                                     finish();
                                 })
                                 .show();
-//                        Toast.makeText(add_schools.this, "Server error: " + errorBody, Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
-                        KAlertDialog successDialog = new KAlertDialog(add_schools.this, true);
-                        successDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
-                        successDialog.setTitleText("Server error!")
-                                .setConfirmText("Server error!")
+                        KAlertDialog errorDialog = new KAlertDialog(add_schools.this, true);
+                        errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                        errorDialog.setTitleText("Server error!")
+                                .setConfirmText("OK")
                                 .confirmButtonColor(R.color.mainColor)
                                 .setConfirmClickListener(sweetAlertDialog -> {
                                     sweetAlertDialog.dismissWithAnimation();
                                     finish();
                                 })
                                 .show();
-
-
                     }
                 }
             }
+
 
             @Override
             public void onFailure(Call<defaultResponse> call, Throwable t) {

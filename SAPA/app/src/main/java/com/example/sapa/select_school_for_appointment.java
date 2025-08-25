@@ -32,6 +32,8 @@ public class select_school_for_appointment extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String coordinatorId = getSharedPreferences("user_session", MODE_PRIVATE)
+                .getString("coordinator_id", null);
 
         binding = ActivitySelectSchoolForAppointmentBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -46,6 +48,7 @@ public class select_school_for_appointment extends AppCompatActivity {
 
             Intent intent = new Intent(select_school_for_appointment.this, select_hospital.class);
             intent.putExtra("school_id", schoolId);
+            intent.putExtra("user_id", coordinatorId);
             startActivity(intent);
         });
 

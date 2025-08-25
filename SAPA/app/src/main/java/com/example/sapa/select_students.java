@@ -83,17 +83,18 @@ public class select_students extends AppCompatActivity {
         double payments = getIntent().getDoubleExtra("billing", 0.0);
         Log.d("SelectStudents", "payments: " + payments);
 
+        String userId = getIntent().getStringExtra("user_id");
+        Log.d("SelectStudents", " user_id: " + userId);
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new StudentAdapter(studentsList, this);
-        binding.recyclerView.setAdapter(adapter);
+        adapter = new StudentAdapter(studentsList, this, true);
 
+        binding.recyclerView.setAdapter(adapter);
 
         binding.actionButton.setVisibility(View.GONE);
         adapter.setOnSelectionChangeListener(selectedCount ->
                 binding.actionButton.setVisibility(selectedCount > 0 ? View.VISIBLE : View.GONE)
         );
-
 
         apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
@@ -108,13 +109,15 @@ public class select_students extends AppCompatActivity {
                 Toast.makeText(this, "Selected students exceed maximum capacity", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             ArrayList<String> selectedStudentIds = new ArrayList<>();
             for (Students s : selectedStudents) {
-                selectedStudentIds.add(s.getId());
+                if (s.getId() != null) {
+                    selectedStudentIds.add(s.getId());
+                }
             }
 
             Intent intent = new Intent(this, make_appointment.class);
-
             intent.putExtra("slot_name", slotName);
             intent.putExtra("start_time", startTime);
             intent.putExtra("end_time", endTime);
@@ -126,12 +129,12 @@ public class select_students extends AppCompatActivity {
             intent.putExtra("school_id", schoolId);
             intent.putExtra("slot_id", slotId);
             intent.putExtra("billing", payments);
+            intent.putExtra("user_id", userId);
+
             intent.putStringArrayListExtra("selected_student_ids", selectedStudentIds);
 
             startActivity(intent);
-
         });
-
 
         fetchStudentsBySchool();
     }
@@ -149,7 +152,9 @@ public class select_students extends AppCompatActivity {
             return;
         }
 
-        Call<List<Students>> call = apiInterface.getStudentsByCoordinator(coordinatorId);
+
+        Call<List<Students>> call = apiInterface.getVacantStudents(coordinatorId,schoolId);
+        Log.d("SelectStudents", "Students: " + schoolId);
         call.enqueue(new Callback<List<Students>>() {
             @Override
             public void onResponse(Call<List<Students>> call, Response<List<Students>> response) {
@@ -165,12 +170,14 @@ public class select_students extends AppCompatActivity {
                     }
 
                     if (filtered.isEmpty()) {
-                        Toast.makeText(select_students.this, "No students found for this school", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(select_students.this, "No vacant students found for this school", Toast.LENGTH_SHORT).show();
                     }
 
                     adapter.updateData(filtered);
 
                 } else {
+                    Log.d("SelectStudents", "Students: " + response.message());
                     Toast.makeText(select_students.this, "Failed to fetch students", Toast.LENGTH_SHORT).show();
                 }
             }

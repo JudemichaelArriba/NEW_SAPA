@@ -30,7 +30,7 @@ public class select_sections extends AppCompatActivity {
 
     private String schoolId;
     private String hospitalId;
-
+    private String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +42,7 @@ public class select_sections extends AppCompatActivity {
 
         schoolId = getIntent().getStringExtra("school_id");
         hospitalId = getIntent().getStringExtra("hospital_id");
-
+        userId = getIntent().getStringExtra("user_id");
         Log.d("SelectSections", "Received school_id: " + schoolId);
         Log.d("SelectSections", "Received hospital_id: " + hospitalId);
 
@@ -54,6 +54,7 @@ public class select_sections extends AppCompatActivity {
             intent.putExtra("hospital_id", hospitalId);
             intent.putExtra("school_id", schoolId);
             intent.putExtra("billing", section.getBilling());
+            intent.putExtra("user_id", userId);
             Log.d("SelectSections", "Received section_id: " + section.getSection_id());
             startActivity(intent);
         });

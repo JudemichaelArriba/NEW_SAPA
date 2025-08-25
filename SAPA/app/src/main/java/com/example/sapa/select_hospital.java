@@ -28,6 +28,8 @@ public class select_hospital extends AppCompatActivity {
     private List<Hospitals> hospitalList = new ArrayList<>();
     private ActivitySelectHospitalBinding binding;
 
+    private String userId; // Add this
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,17 +40,20 @@ public class select_hospital extends AppCompatActivity {
 
         binding.backButton.setOnClickListener(v -> finish());
 
+        // 🔹 Receive school_id and user_id from previous activity
         String schoolId = getIntent().getStringExtra("school_id");
-        Log.d("SelectHospital", "Received school_id: " + schoolId);
+        userId = getIntent().getStringExtra("user_id"); // Receive user_id
+        Log.d("SelectHospital", "Received school_id: " + schoolId + " | user_id: " + userId);
 
         hospitalAdapter = new HospitalAdapter(this, hospitalList, hospital -> {
             String hospitalId = hospital.getHospital_id();
             Log.d("SelectHospital", "Clicked hospital_id: " + hospitalId);
 
-
+            // 🔹 Pass school_id, hospital_id, and user_id to next activity
             Intent intent = new Intent(select_hospital.this, select_sections.class);
             intent.putExtra("school_id", schoolId);
             intent.putExtra("hospital_id", hospitalId);
+            intent.putExtra("user_id", userId); // Pass user_id along
             startActivity(intent);
 
             Toast.makeText(this, "School: " + schoolId + " | Hospital: " + hospitalId, Toast.LENGTH_SHORT).show();

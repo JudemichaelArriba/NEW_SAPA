@@ -2,10 +2,12 @@ package com.example.sapa.ApiAndInterface;
 
 
 import com.example.sapa.SignUpResponse;
+import com.example.sapa.models.AppointmentRequest;
 import com.example.sapa.models.Hospitals;
 import com.example.sapa.models.LoginResponse;
 import com.example.sapa.models.School;
 import com.example.sapa.models.Students;
+import com.example.sapa.models.UpcomingAppointment;
 import com.example.sapa.models.UserProfileResponse;
 import com.example.sapa.models.defaultResponse;
 import com.example.sapa.models.hospitalSections;
@@ -16,6 +18,7 @@ import java.util.List;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -44,6 +47,15 @@ public interface ApiInterface {
             @Field("username") String username,
             @Field("password") String password
     );
+
+
+
+    @GET("getStudentWithoutAppointments.php")
+    Call<List<Students>> getVacantStudents(
+            @Query("coordinator_id") String coordinatorId,
+            @Query("school_id") String schoolId
+    );
+
 
     @Multipart
     @POST("add_school.php")
@@ -89,6 +101,15 @@ public interface ApiInterface {
             @Field("gender") String gender,
             @Field("coordinator_id") String coordinatorId,
             @Field("school_id") String schoolId
+    );
+
+    @POST("add_appointment.php")
+    Call<defaultResponse> addAppointment(@Body AppointmentRequest appointmentRequest);
+
+
+    @GET("get_upcomingAppointments.php")
+    Call<List<UpcomingAppointment>> getUpcomingAppointments(
+            @Query("user_id") String userId
     );
 
 

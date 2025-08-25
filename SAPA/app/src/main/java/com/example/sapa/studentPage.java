@@ -3,6 +3,9 @@ package com.example.sapa;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +16,7 @@ import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.RecycleviewAdapter.StudentAdapter;
 import com.example.sapa.databinding.ActivityStudentPageBinding;
+import com.example.sapa.models.School;
 import com.example.sapa.models.Students;
 
 import java.util.ArrayList;
@@ -28,7 +32,11 @@ public class studentPage extends AppCompatActivity {
     private ApiInterface apiInterface;
     private StudentAdapter adapter;
     private List<Students> studentsList = new ArrayList<>();
+    private List<Students> allStudentsList = new ArrayList<>();
     private boolean isFetching = false;
+
+    private List<School> schoolList = new ArrayList<>();
+    private ArrayAdapter<String> spinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,25 +46,116 @@ public class studentPage extends AppCompatActivity {
 
         RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new StudentAdapter(studentsList, this);
-        recyclerView.setAdapter(adapter);
+        adapter = new StudentAdapter(studentsList, this, false);
+        binding.recyclerView.setAdapter(adapter);
 
         apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
-        String coordinatorId = getSharedPreferences("user_session", MODE_PRIVATE)
-                .getString("coordinator_id", null);
+        // Spinner setup
+        spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.schoolSpinner.setAdapter(spinnerAdapter);
 
-        Log.d("StudentPage", "Coordinator ID: " + coordinatorId);
+        // Spinner selection
+        binding.schoolSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filterStudents(binding.search.getText().toString());
+            }
 
-        if (coordinatorId == null || coordinatorId.isEmpty()) {
-            Toast.makeText(studentPage.this, "Coordinator ID is missing!", Toast.LENGTH_SHORT).show();
-        }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Search functionality
+        binding.search.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterStudents(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
 
         binding.backButton.setOnClickListener(v -> finish());
         binding.fab.setOnClickListener(v -> {
             Intent intent = new Intent(studentPage.this, select_school.class);
             startActivity(intent);
             finish();
+        });
+    }
+
+    private void filterStudents(String query) {
+        String selectedSchoolName = binding.schoolSpinner.getSelectedItem().toString();
+        List<Students> filteredList = new ArrayList<>();
+
+        for (Students s : allStudentsList) {
+            boolean matchesQuery = s.getStudentFullname().toLowerCase().contains(query.toLowerCase()) ||
+                    s.getId().toLowerCase().contains(query.toLowerCase());
+
+            boolean matchesSchool = selectedSchoolName.equals("All") ||
+                    (getSchoolNameById(s.getSchoolId()).equalsIgnoreCase(selectedSchoolName));
+
+            if (matchesQuery && matchesSchool) {
+                filteredList.add(s);
+            }
+        }
+
+        studentsList.clear();
+        studentsList.addAll(filteredList);
+        adapter.notifyDataSetChanged();
+    }
+
+    private String getSchoolNameById(String schoolId) {
+        for (School school : schoolList) {
+            if (school.getSchoolId().equals(schoolId)) return school.getSchoolName();
+        }
+        return "";
+    }
+
+    private void fetchSchools() {
+        String coordinatorId = getSharedPreferences("user_session", MODE_PRIVATE)
+                .getString("coordinator_id", null);
+
+        if (coordinatorId == null || coordinatorId.isEmpty()) {
+            Toast.makeText(this, "Coordinator ID is missing!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Call<List<School>> call = apiInterface.getSchools(coordinatorId);
+        call.enqueue(new Callback<List<School>>() {
+            @Override
+            public void onResponse(Call<List<School>> call, Response<List<School>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<School> responseList = response.body();
+                    schoolList.clear();
+                    for (School s : responseList) {
+                        if (!"pending".equalsIgnoreCase(s.getSchoolStatus())) {
+                            schoolList.add(s);
+                        }
+                    }
+
+                    List<String> schoolNames = new ArrayList<>();
+                    schoolNames.add("All");
+                    for (School s : schoolList) schoolNames.add(s.getSchoolName());
+
+                    spinnerAdapter.clear();
+                    spinnerAdapter.addAll(schoolNames);
+                    spinnerAdapter.notifyDataSetChanged();
+                    binding.schoolSpinner.setSelection(0);
+                } else {
+                    Toast.makeText(studentPage.this, "No schools found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<School>> call, Throwable t) {
+                Toast.makeText(studentPage.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -75,43 +174,23 @@ public class studentPage extends AppCompatActivity {
 
         Call<List<Students>> call = apiInterface.getStudentsByCoordinator(coordinatorId);
         call.enqueue(new Callback<List<Students>>() {
-
             @Override
             public void onResponse(Call<List<Students>> call, Response<List<Students>> response) {
                 isFetching = false;
-
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Students> responseList = response.body();
-                    if (!responseList.isEmpty()) {
-                        studentsList.clear();
-                        studentsList.addAll(responseList);
-                        adapter.notifyDataSetChanged();
-
-
-                        for (Students s : responseList) {
-                            Log.d("fetchStudent", "Student ID: " + s.getId() + ", Name: " + s.getStudentFullname());
-                        }
-
-                    } else {
-                        Log.d("fetchStudent", "Empty list or null body");
-                        Toast.makeText(studentPage.this, "No students found for this coordinator", Toast.LENGTH_SHORT).show();
-                    }
-
+                    allStudentsList.clear();
+                    allStudentsList.addAll(response.body());
+                    studentsList.clear();
+                    studentsList.addAll(allStudentsList);
+                    adapter.notifyDataSetChanged();
                 } else {
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "null";
-                        Log.e("fetchStudent", "Error Body: " + errorBody);
-                    } catch (Exception e) {
-                        Log.e("fetchStudent", "Error reading errorBody", e);
-                    }
-                    Toast.makeText(studentPage.this, "Server returned error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(studentPage.this, "No students found", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Students>> call, Throwable t) {
                 isFetching = false;
-                Log.e("fetchStudent", "API Failure: " + t.getMessage(), t);
                 Toast.makeText(studentPage.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -120,6 +199,7 @@ public class studentPage extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        fetchSchools();
         fetchStudents();
     }
 }

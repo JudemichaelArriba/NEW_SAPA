@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sapa.R;
-
 import com.example.sapa.models.hospitalSections;
 
 import java.util.List;
@@ -42,9 +41,18 @@ public class hospitalSectionsAdapter extends RecyclerView.Adapter<hospitalSectio
     public void onBindViewHolder(@NonNull SectionViewHolder holder, int position) {
         hospitalSections section = sectionList.get(position);
 
+
+        holder.hospitalName.setText(section.getHospital_name());
+
+
         holder.sectionName.setText(section.getSection_name());
+
+
         holder.sectionDescription.setText(section.getSection_description());
+
+
         holder.sectionBilling.setText("₱ " + section.getBilling());
+
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -59,10 +67,11 @@ public class hospitalSectionsAdapter extends RecyclerView.Adapter<hospitalSectio
     }
 
     public static class SectionViewHolder extends RecyclerView.ViewHolder {
-        TextView sectionName, sectionDescription, sectionBilling;
+        TextView hospitalName, sectionName, sectionDescription, sectionBilling;
 
         public SectionViewHolder(@NonNull View itemView) {
             super(itemView);
+            hospitalName = itemView.findViewById(R.id.hospitalName);
             sectionName = itemView.findViewById(R.id.sectionName);
             sectionDescription = itemView.findViewById(R.id.sectionValue);
             sectionBilling = itemView.findViewById(R.id.startTimeValue);
