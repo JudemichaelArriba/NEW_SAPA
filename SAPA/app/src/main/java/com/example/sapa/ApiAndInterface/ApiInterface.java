@@ -50,6 +50,41 @@ public interface ApiInterface {
 
 
 
+
+
+    @FormUrlEncoded
+    @POST("update_school.php")
+    Call<defaultResponse> updateSchool(
+            @Field("school_id") String schoolId,
+            @Field("school_name") String schoolName,
+            @Field("school_address") String schoolAddress,
+            @Field("school_email") String schoolEmail,
+            @Field("contact_no") String contactNo,
+            @Field("profile_image") String profileImageBase64
+    );
+
+
+
+
+
+
+    @FormUrlEncoded
+    @POST("update_student.php")
+    Call<defaultResponse> updateStudent(
+            @Field("student_id") String studentId,
+            @Field("first_name") String firstName,
+            @Field("last_name") String lastName,
+            @Field("contact_no") String contactNo,
+            @Field("email") String email,
+            @Field("birthdate") String birthdate,
+            @Field("gender") String gender
+    );
+
+
+
+
+
+
     @GET("getStudentWithoutAppointments.php")
     Call<List<Students>> getVacantStudents(
             @Query("coordinator_id") String coordinatorId,

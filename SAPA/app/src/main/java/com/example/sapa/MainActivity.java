@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
                 binding.loadingOverlay.setVisibility(View.GONE);
                 binding.loginBtn.setEnabled(true);
+
                 Log.e("MainForLogin", "Connection failed: " + t.getMessage(), t);
                 KAlertDialog errorDialog = new KAlertDialog(MainActivity.this, true);
                 errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);

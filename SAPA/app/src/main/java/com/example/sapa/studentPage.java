@@ -2,7 +2,6 @@ package com.example.sapa;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -46,17 +45,29 @@ public class studentPage extends AppCompatActivity {
 
         RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new StudentAdapter(studentsList, this, false);
+        adapter = new StudentAdapter(studentsList, this, false); // false = no multiselect
         binding.recyclerView.setAdapter(adapter);
+
+
+        adapter.setOnStudentClickListener(student -> {
+            Intent intent = new Intent(studentPage.this, studentInfo.class);
+            intent.putExtra("id", student.getId());
+            intent.putExtra("fullname", student.getStudentFullname());
+            intent.putExtra("email", student.getEmail());
+            intent.putExtra("birthdate", student.getBirthdate());
+            intent.putExtra("gender", student.getGender());
+            intent.putExtra("schoolName", student.getSchoolName());
+            startActivity(intent);
+        });
 
         apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
-        // Spinner setup
+
         spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.schoolSpinner.setAdapter(spinnerAdapter);
 
-        // Spinner selection
+
         binding.schoolSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -64,13 +75,15 @@ public class studentPage extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
-        // Search functionality
+
         binding.search.addTextChangedListener(new android.text.TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -78,7 +91,8 @@ public class studentPage extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(android.text.Editable s) {}
+            public void afterTextChanged(android.text.Editable s) {
+            }
         });
 
         binding.backButton.setOnClickListener(v -> finish());
@@ -167,7 +181,7 @@ public class studentPage extends AppCompatActivity {
                 .getString("coordinator_id", null);
 
         if (coordinatorId == null || coordinatorId.isEmpty()) {
-            Toast.makeText(studentPage.this, "Coordinator ID is missing!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Coordinator ID is missing!", Toast.LENGTH_SHORT).show();
             isFetching = false;
             return;
         }

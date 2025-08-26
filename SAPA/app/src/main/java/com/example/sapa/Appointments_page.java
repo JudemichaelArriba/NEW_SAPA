@@ -26,8 +26,10 @@ import com.example.sapa.databinding.FragmentAppointmentsPageBinding;
 import com.example.sapa.models.UpcomingAppointment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,6 +60,22 @@ public class Appointments_page extends Fragment {
         allAppointments = new ArrayList<>();
         adapter = new UpcomingAppointmentsAdapter(requireContext(), appointmentList, appointment -> {
 
+            int totalStudents = 0;
+            for (UpcomingAppointment appt : allAppointments) {
+                if (appt.getSlotId() == appointment.getSlotId()) {
+                    totalStudents++;
+                }
+            }
+
+            Intent intent = new Intent(requireContext(), selected_appointment.class);
+            intent.putExtra("slotName", appointment.getSlotName());
+            intent.putExtra("startTime", appointment.getStartTime());
+            intent.putExtra("endTime", appointment.getEndTime());
+            intent.putExtra("hospitalName", appointment.getHospitalName());
+            intent.putExtra("sectionName", appointment.getSectionName());
+            intent.putExtra("status", appointment.getAppointmentStatus());
+            intent.putExtra("totalStudents", totalStudents);
+            startActivity(intent);
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -78,25 +96,19 @@ public class Appointments_page extends Fragment {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
-
 
         binding.searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String status = binding.statusSpinner.getSelectedItem().toString();
                 filterAppointments(status, s.toString().trim());
             }
-
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -109,54 +121,36 @@ public class Appointments_page extends Fragment {
             Log.e("Appointments_page", "User ID is null or empty");
             return;
         }
-        Log.d("Appointments_page", "User ID: " + userId);
 
         ApiInterface api = ApiClient.getClient(requireContext()).create(ApiInterface.class);
 
         api.getUpcomingAppointments(userId).enqueue(new Callback<List<UpcomingAppointment>>() {
             @Override
             public void onResponse(Call<List<UpcomingAppointment>> call, Response<List<UpcomingAppointment>> response) {
-                Log.d("Appointments_page", "HTTP Response code: " + response.code());
-                Log.d("Appointments_page", "Response raw: " + response.raw().toString());
+                if (response.isSuccessful() && response.body() != null) {
+                    appointmentList.clear();
+                    allAppointments.clear();
 
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        appointmentList.clear();
-                        allAppointments.clear();
+                    List<UpcomingAppointment> uniqueAppointments = removeDuplicateAppointments(response.body());
+                    appointmentList.addAll(uniqueAppointments);
+                    allAppointments.addAll(response.body());
 
-                        List<UpcomingAppointment> uniqueAppointments = removeDuplicateAppointments(response.body());
-                        appointmentList.addAll(uniqueAppointments);
-                        allAppointments.addAll(uniqueAppointments);
-
-                        adapter.notifyDataSetChanged();
-                        Log.d("Appointments_page", "Fetched appointments: " + appointmentList.toString());
-                        Toast.makeText(requireContext(), "Fetched " + appointmentList.size() + " unique appointments", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Log.w("Appointments_page", "Response body is null");
-                        Toast.makeText(requireContext(), "No appointments found", Toast.LENGTH_SHORT).show();
-                    }
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(requireContext(), "Fetched " + appointmentList.size() + " unique appointments", Toast.LENGTH_SHORT).show();
                 } else {
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "null";
-                        Log.e("Appointments_page", "Response not successful. Code: " + response.code() + ", Body: " + errorBody);
-                    } catch (Exception e) {
-                        Log.e("Appointments_page", "Error reading errorBody", e);
-                    }
-                    Toast.makeText(requireContext(), "Failed to fetch appointments: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "No appointments found", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<UpcomingAppointment>> call, Throwable t) {
-                Log.e("Appointments_page", "API call failed: " + t.getMessage(), t);
                 Toast.makeText(requireContext(), "API call failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
     private void filterAppointments(String status, String query) {
-        appointmentList.clear();
+        Map<Integer, UpcomingAppointment> slotMap = new HashMap<>();
 
         for (UpcomingAppointment appt : allAppointments) {
             boolean matchesStatus = status.equals("All") ||
@@ -168,12 +162,14 @@ public class Appointments_page extends Fragment {
                     (appt.getAppointmentStatus() != null && appt.getAppointmentStatus().toLowerCase().contains(query.toLowerCase()));
 
             if (matchesStatus && matchesSearch) {
-                appointmentList.add(appt);
+
+                slotMap.putIfAbsent(appt.getSlotId(), appt);
             }
         }
 
+        appointmentList.clear();
+        appointmentList.addAll(slotMap.values());
         adapter.notifyDataSetChanged();
-        Log.d("Appointments_page", "Filtered by status: " + status + ", query: " + query + ", count: " + appointmentList.size());
     }
 
     private List<UpcomingAppointment> removeDuplicateAppointments(List<UpcomingAppointment> appointments) {

@@ -2,7 +2,6 @@ package com.example.sapa;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,22 +84,16 @@ public class add_student_page extends AppCompatActivity {
         String birthdate = binding.birthdayInput.getText().toString().trim();
         String schoolId = getIntent().getStringExtra("school_id");
 
-
-        if(firstName.isBlank() || lastName.isBlank()|| email.isBlank() ||contactNo.isBlank() ||birthdate.isBlank()){
-
+        if(firstName.isBlank() || lastName.isBlank() || email.isBlank() || contactNo.isBlank() || birthdate.isBlank()){
             KAlertDialog nullFieldsDialog = new KAlertDialog(add_student_page.this, true);
             nullFieldsDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
             nullFieldsDialog.setTitleText("Missing Fields")
-                    .setContentText("Please fill All the Fields.")
+                    .setContentText("Please fill all the fields.")
                     .setConfirmText("OK")
-                    .setConfirmClickListener(sweetAlertDialog -> {
-                        sweetAlertDialog.dismissWithAnimation();
-                    })
+                    .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
                     .show();
             return;
         }
-
-
 
         ApiInterface apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
         Call<defaultResponse> call = apiInterface.addStudent(firstName, lastName, contactNo, email, birthdate, selectedGender, coordinatorId, schoolId);
@@ -111,83 +104,52 @@ public class add_student_page extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     String message = response.body().getMessage();
 
+                    int alertType = KAlertDialog.SUCCESS_TYPE;
+                    if(message.toLowerCase().contains("must be at least 18") || message.toLowerCase().contains("exists")){
+                        alertType = KAlertDialog.WARNING_TYPE;
+                    }
 
-                    KAlertDialog warningDialog = new KAlertDialog(add_student_page.this, true);
-                    warningDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
-                    warningDialog.setTitleText(message)
-                            .setConfirmText("OK")
+                    KAlertDialog dialog = new KAlertDialog(add_student_page.this, true);
+                    dialog.changeAlertType(alertType);
+
+                    if(alertType == KAlertDialog.SUCCESS_TYPE){
+                        dialog.setTitleText("Success")
+                                .setContentText(message);
+                    } else {
+                        dialog.setTitleText("Warning")
+                                .setContentText(message);
+                    }
+
+                    final int finalAlertType = alertType;
+                    dialog.setConfirmText("OK")
                             .confirmButtonColor(R.color.mainColor)
                             .setConfirmClickListener(sweetAlertDialog -> {
                                 sweetAlertDialog.dismissWithAnimation();
+                                if(finalAlertType == KAlertDialog.SUCCESS_TYPE) finish();
                             })
                             .show();
 
-
-                    if (message.toLowerCase().contains("must be at least 18")) {
-
-                        KAlertDialog warningDialog1 = new KAlertDialog(add_student_page.this, true);
-                        warningDialog1.changeAlertType(KAlertDialog.WARNING_TYPE);
-                        warningDialog1.setTitleText(message)
-                                .setConfirmText("OK")
-                                .confirmButtonColor(R.color.mainColor)
-                                .setConfirmClickListener(sweetAlertDialog -> {
-                                    sweetAlertDialog.dismissWithAnimation();
-                                })
-                                .show();
-                    } else if (message.toLowerCase().contains("exists")) {
-                        KAlertDialog warningDialog2 = new KAlertDialog(add_student_page.this, true);
-                        warningDialog2.changeAlertType(KAlertDialog.WARNING_TYPE);
-                        warningDialog2.setTitleText("Warning");
-                        warningDialog2.setContentText(message)
-                                .setConfirmText("OK")
-                                .confirmButtonColor(R.color.mainColor)
-                                .setConfirmClickListener(sweetAlertDialog -> {
-                                    sweetAlertDialog.dismissWithAnimation();
-                                })
-                                .show();
-
-                    } else {
-                        KAlertDialog warningDialog2 = new KAlertDialog(add_student_page.this, true);
-                        warningDialog2.changeAlertType(KAlertDialog.SUCCESS_TYPE);
-                        warningDialog2.setTitleText("Success");
-                        warningDialog2.setContentText(message)
-                                .setConfirmText("OK")
-                                .confirmButtonColor(R.color.mainColor)
-                                .setConfirmClickListener(sweetAlertDialog -> {
-                                    sweetAlertDialog.dismissWithAnimation();
-                                    finish();
-                                })
-                                .show();
-
-                    }
                 } else {
-
-                    KAlertDialog nullFieldsDialog = new KAlertDialog(add_student_page.this, true);
-                    nullFieldsDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
-                    nullFieldsDialog.setTitleText("Failed")
-                            .setContentText("Failed to add student. Server returned an error..")
+                    KAlertDialog errorDialog = new KAlertDialog(add_student_page.this, true);
+                    errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                    errorDialog.setTitleText("Failed")
+                            .setContentText("Failed to add student. Server returned an error.")
                             .setConfirmText("OK")
-                            .setConfirmClickListener(sweetAlertDialog -> {
-                                sweetAlertDialog.dismissWithAnimation();
-                            })
+                            .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
                             .show();
                 }
             }
 
             @Override
             public void onFailure(Call<defaultResponse> call, Throwable t) {
-
-                KAlertDialog nullFieldsDialog = new KAlertDialog(add_student_page.this, true);
-                nullFieldsDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
-                nullFieldsDialog.setTitleText("Network Error")
+                KAlertDialog errorDialog = new KAlertDialog(add_student_page.this, true);
+                errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                errorDialog.setTitleText("Network Error")
                         .setContentText(t.getMessage())
                         .setConfirmText("OK")
-                        .setConfirmClickListener(sweetAlertDialog -> {
-                            sweetAlertDialog.dismissWithAnimation();
-                        })
+                        .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
                         .show();
             }
         });
-
     }
 }

@@ -50,7 +50,7 @@ public class UpcomingAppointmentsAdapter extends RecyclerView.Adapter<UpcomingAp
         holder.appointmentStatus.setText(a.getAppointmentStatus() != null ? a.getAppointmentStatus() : "N/A");
 
 
-        // Safe handling of date
+
         String startTimeStr = a.getStartTime() != null ? a.getStartTime() : "";
         SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         SimpleDateFormat output = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
@@ -65,7 +65,7 @@ public class UpcomingAppointmentsAdapter extends RecyclerView.Adapter<UpcomingAp
             holder.appointmentDate.setText(startTimeStr);
         }
 
-        // Safe substring for time
+
         if (startTimeStr.length() >= 16) {
             holder.startTime.setText(startTimeStr.substring(11, 16));
         } else {
@@ -98,8 +98,6 @@ public class UpcomingAppointmentsAdapter extends RecyclerView.Adapter<UpcomingAp
             appointmentDate = itemView.findViewById(R.id.appointment_date);
             startTime = itemView.findViewById(R.id.start_time);
             endTime = itemView.findViewById(R.id.end_time);
-
-
         }
     }
 }

@@ -35,6 +35,7 @@ public class schoolInfo extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            String school_id = extras.getString("school_id","N/A");
             String schoolName = extras.getString("school_name", "N/A");
             String schoolAddress = extras.getString("school_address", "N/A");
             String schoolStatus = extras.getString("school_status", "N/A");
@@ -71,6 +72,31 @@ public class schoolInfo extends AppCompatActivity {
         binding.backButton.setOnClickListener(v -> {
 
             finish();
+
+        });
+
+        binding.editSchool.setOnClickListener(v->{
+
+            Intent intent = new Intent(schoolInfo.this, edit_school.class);
+
+
+            Bundle extras1 = getIntent().getExtras();
+            if (extras1 != null) {
+                String schoolId = extras1.getString("school_id", "");
+                String schoolImageBase64 = extras1.getString("school_image_base64", "");
+
+                intent.putExtra("school_id", schoolId);
+                intent.putExtra("school_image_base64", schoolImageBase64);
+            }
+
+
+            intent.putExtra("school_name", binding.schoolName1.getText().toString());
+            intent.putExtra("school_address", binding.schoolAddressTv.getText().toString());
+            intent.putExtra("school_email", binding.schoolEmailTv.getText().toString());
+            intent.putExtra("school_mobile", binding.mobileTv2.getText().toString());
+
+            startActivity(intent);
+
 
         });
 

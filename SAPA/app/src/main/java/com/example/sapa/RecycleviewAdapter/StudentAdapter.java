@@ -1,7 +1,6 @@
 package com.example.sapa.RecycleviewAdapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     private boolean selectionMode = false;
     private boolean enableSelection;
 
+    // 🔹 Callback for multi-select
     public interface OnSelectionChangeListener {
         void onSelectionChanged(int count);
     }
@@ -38,6 +38,16 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.selectionChangeListener = listener;
     }
 
+    // 🔹 Callback for single-click (student info)
+    public interface OnStudentClickListener {
+        void onStudentClick(Students student);
+    }
+
+    private OnStudentClickListener studentClickListener;
+
+    public void setOnStudentClickListener(OnStudentClickListener listener) {
+        this.studentClickListener = listener;
+    }
 
     public StudentAdapter(List<Students> studentList, Context context, boolean enableSelection) {
         this.studentList = studentList;
@@ -61,28 +71,26 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         holder.studentEmail.setText(student.getEmail());
         holder.studentMobile.setText(student.getSchoolName());
 
-
-//        if (selectedIds.contains(student.getId())) {
-//            holder.itemView.setBackgroundColor(Color.LTGRAY);
-//        } else {
-//            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
-//        }
-
-
         holder.studentCheckBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
         holder.studentCheckBox.setChecked(selectedIds.contains(student.getId()));
 
-
+        // 🔹 Click behavior changes depending on mode
         holder.itemView.setOnClickListener(v -> {
             int currentPos = holder.getAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
                 if (enableSelection && selectionMode) {
+                    // Multi-select mode
                     toggleSelection(student);
+                } else if (!enableSelection) {
+                    // Normal click → open student info
+                    if (studentClickListener != null) {
+                        studentClickListener.onStudentClick(student);
+                    }
                 }
             }
         });
 
-
+        // 🔹 Long click only used to start multi-select
         holder.itemView.setOnLongClickListener(v -> {
             if (enableSelection && !selectionMode) {
                 selectionMode = true;
@@ -144,7 +152,6 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             selectionChangeListener.onSelectionChanged(0);
         }
     }
-
 
     public void clearSelection() {
         selectionMode = false;
