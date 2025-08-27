@@ -27,9 +27,6 @@
             android:name=".edit_school"
             android:exported="false" />
         <activity
-            android:name=".bills_page"
-            android:exported="false" />
-        <activity
             android:name=".selected_appointment"
             android:exported="false" />
         <activity

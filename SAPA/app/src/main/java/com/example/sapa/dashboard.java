@@ -53,7 +53,7 @@ public class dashboard extends AppCompatActivity {
             } else if (id == R.id.appointments) {
                 selectedFragment = new Appointments_page();
             } else if (id == R.id.bills) {
-
+                selectedFragment = new bills();
             }
             if (selectedFragment != null) {
                 getSupportFragmentManager()

@@ -8,6 +8,7 @@ import com.example.sapa.models.LoginResponse;
 import com.example.sapa.models.School;
 import com.example.sapa.models.Students;
 import com.example.sapa.models.UpcomingAppointment;
+import com.example.sapa.models.UserBillsResponse;
 import com.example.sapa.models.UserProfileResponse;
 import com.example.sapa.models.defaultResponse;
 import com.example.sapa.models.hospitalSections;
@@ -66,7 +67,9 @@ public interface ApiInterface {
 
 
 
-
+    @FormUrlEncoded
+    @POST("cancel_appointments.php")
+    Call<defaultResponse> cancelAppointmentsBySlot(@Field("slot_id") int slotId);
 
     @FormUrlEncoded
     @POST("update_student.php")
@@ -82,7 +85,10 @@ public interface ApiInterface {
 
 
 
-
+    @GET("get_bills.php")
+    Call<UserBillsResponse> getUserBills(
+            @Query("user_id") String userId
+    );
 
 
     @GET("getStudentWithoutAppointments.php")

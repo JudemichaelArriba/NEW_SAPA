@@ -42,7 +42,7 @@ public class make_appointment extends AppCompatActivity {
             return insets;
         });
 
-        // Get intent extras
+
         String slotName = getIntent().getStringExtra("slot_name");
         String startTime = getIntent().getStringExtra("start_time");
         String endTime = getIntent().getStringExtra("end_time");
@@ -54,7 +54,7 @@ public class make_appointment extends AppCompatActivity {
         String schoolId = getIntent().getStringExtra("school_id");
         int slotId = getIntent().getIntExtra("slot_id", 0);
         double billing = getIntent().getDoubleExtra("billing", 0.0);
-        String userId = getIntent().getStringExtra("user_id"); // Receive user_id
+        String userId = getIntent().getStringExtra("user_id");
         ArrayList<String> selectedStudentIds = getIntent().getStringArrayListExtra("selected_student_ids");
 
 
@@ -62,7 +62,7 @@ public class make_appointment extends AppCompatActivity {
 
         Log.d("MakeAppointment", "userId: " + userId);
         Log.d("MakeAppointment", "students: " + selectedStudentIds);
-        // Fill UI
+
         binding.slotNameValue.setText(slotName != null ? slotName : "N/A");
         binding.startTimeValue.setText(startTime != null ? startTime : "N/A");
         binding.endTimeValue.setText(endTime != null ? endTime : "N/A");
@@ -71,14 +71,12 @@ public class make_appointment extends AppCompatActivity {
         binding.sectionNameValue.setText(sectionName != null ? sectionName : "N/A");
         binding.paymentValue.setText(String.valueOf(billing));
 
-        // Confirm Button
         binding.actionButton.setOnClickListener(v -> {
             if (selectedStudentIds != null && selectedStudentIds.size() > maxCapacity) {
                 Toast.makeText(this, "Selected students exceed maximum capacity", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // ✅ Get user ID from SharedPreferences
 
 
             if (userId == null) {
@@ -88,11 +86,11 @@ public class make_appointment extends AppCompatActivity {
 
 
 
-            // Build request
+
             Log.d("MakeAppointment", "Sending student IDs: " + selectedStudentIds);
             AppointmentRequest request = new AppointmentRequest(slotId, userId, selectedStudentIds);
 
-            // ✅ Pass activity context to ApiClient
+
             ApiInterface api = ApiClient.getClient(make_appointment.this).create(ApiInterface.class);
 
             api.addAppointment(request).enqueue(new Callback<defaultResponse>() {
@@ -119,6 +117,7 @@ public class make_appointment extends AppCompatActivity {
 
                         }
                     } else {
+                        Log.e("make_appointment", "Unexpected response code: " + response.code());
                         Toast.makeText(make_appointment.this, "Failed to add appointment", Toast.LENGTH_SHORT).show();
                     }
                 }

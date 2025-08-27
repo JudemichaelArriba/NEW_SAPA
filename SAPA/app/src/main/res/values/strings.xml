@@ -30,5 +30,12 @@
     </string-array>
 
 
+    <string-array name="status_bills">
+        <item>All</item>
+        <item>Paid</item>
+        <item>Unpaid</item>
+
+    </string-array>
+
     <string name="title_activity_add_student_page">add_student_page</string>
 </resources>

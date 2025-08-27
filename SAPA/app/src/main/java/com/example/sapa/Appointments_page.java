@@ -60,10 +60,15 @@ public class Appointments_page extends Fragment {
         allAppointments = new ArrayList<>();
         adapter = new UpcomingAppointmentsAdapter(requireContext(), appointmentList, appointment -> {
 
+
             int totalStudents = 0;
             for (UpcomingAppointment appt : allAppointments) {
                 if (appt.getSlotId() == appointment.getSlotId()) {
-                    totalStudents++;
+                    if (appt.getStudentCount() > 0) {
+                        totalStudents += appt.getStudentCount();
+                    } else {
+                        totalStudents++;
+                    }
                 }
             }
 
@@ -75,6 +80,8 @@ public class Appointments_page extends Fragment {
             intent.putExtra("sectionName", appointment.getSectionName());
             intent.putExtra("status", appointment.getAppointmentStatus());
             intent.putExtra("totalStudents", totalStudents);
+            intent.putExtra("slot_id", appointment.getSlotId());
+            Log.d("appointment_page", "slotId: "+  appointment.getSlotId() );
             startActivity(intent);
         });
 
@@ -96,19 +103,24 @@ public class Appointments_page extends Fragment {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         binding.searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String status = binding.statusSpinner.getSelectedItem().toString();
                 filterAppointments(status, s.toString().trim());
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -162,7 +174,6 @@ public class Appointments_page extends Fragment {
                     (appt.getAppointmentStatus() != null && appt.getAppointmentStatus().toLowerCase().contains(query.toLowerCase()));
 
             if (matchesStatus && matchesSearch) {
-
                 slotMap.putIfAbsent(appt.getSlotId(), appt);
             }
         }
