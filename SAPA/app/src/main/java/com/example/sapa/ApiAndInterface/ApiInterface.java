@@ -115,8 +115,14 @@ public interface ApiInterface {
             @Part MultipartBody.Part profileImage
     );
 
-
-
+    @GET("school_delete.php")
+    Call<defaultResponse> deleteSchool(
+            @Query("school_id") String schoolId
+    );
+    @GET("student_delete.php")
+    Call<defaultResponse> deleteStudent(
+            @Query("student_id") String studentId
+    );
 
 
     @FormUrlEncoded

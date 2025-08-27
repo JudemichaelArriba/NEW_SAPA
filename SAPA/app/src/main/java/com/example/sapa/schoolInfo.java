@@ -12,7 +12,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.developer.kalert.KAlertDialog;
+import com.example.sapa.ApiAndInterface.ApiClient;
+import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.databinding.ActivitySchoolInfoBinding;
+import com.example.sapa.models.defaultResponse;
+
+import retrofit2.Call;
 
 public class schoolInfo extends AppCompatActivity {
 
@@ -99,7 +105,90 @@ public class schoolInfo extends AppCompatActivity {
 
 
         });
+        binding.deleteBtn.setOnClickListener(v -> {
+            String schoolId = getIntent().getStringExtra("school_id");
 
+            if (schoolId == null || schoolId.isEmpty()) {
+
+                KAlertDialog errorDialog = new KAlertDialog(schoolInfo.this, true);
+                errorDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+                errorDialog.setTitleText("School ID not found")
+
+                        .setConfirmText("OK")
+                        .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                        .show();
+
+                return;
+            }
+
+            KAlertDialog confirmDialog = new KAlertDialog(schoolInfo.this, true);
+            confirmDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+            confirmDialog.setTitleText("Are you sure you want to delete this school?")
+                    .setCancelText("NO")
+                    .setConfirmText("YES")
+                    .setConfirmClickListener(sweetAlertDialog -> {
+
+                        ApiInterface api = ApiClient.getClient(schoolInfo.this)
+                                .create(ApiInterface.class);
+
+                        Call<defaultResponse> call = api.deleteSchool(schoolId);
+
+                        call.enqueue(new retrofit2.Callback<defaultResponse>() {
+                            @Override
+                            public void onResponse(Call<defaultResponse> call, retrofit2.Response<defaultResponse> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    if ("success".equalsIgnoreCase(response.body().getStatus()) ||
+                                            "true".equalsIgnoreCase(response.body().getStatus())) {
+                                        KAlertDialog successDialog = new KAlertDialog(schoolInfo.this, true);
+                                        successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                                        successDialog.setTitleText("Delete Successfully!")
+                                                .setConfirmText("OK")
+                                                .setConfirmClickListener(kAlertDialog -> {
+                                                    kAlertDialog.dismissWithAnimation();
+                                                    finish();
+                                                })
+                                                .show();
+                                    } else {
+                                        KAlertDialog successDialog = new KAlertDialog(schoolInfo.this, true);
+                                        successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                                        successDialog.setTitleText("Delete Successfully!")
+                                                .setConfirmText("OK")
+                                                .setConfirmClickListener(kAlertDialog -> {
+                                                    kAlertDialog.dismissWithAnimation();
+                                                    finish();
+                                                })
+                                                .show();
+
+
+                                    }
+                                } else {
+                                    KAlertDialog errorDialog = new KAlertDialog(schoolInfo.this, true);
+                                    errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                                    errorDialog.setTitleText("Failed to delete schools")
+                                            .setConfirmText("OK")
+                                            .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                                            .show();
+
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<defaultResponse> call, Throwable t) {
+                                KAlertDialog errorDialog = new KAlertDialog(schoolInfo.this, true);
+                                errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                                errorDialog.setTitleText("Error")
+                                        .setContentText(t.getMessage())
+                                        .setConfirmText("OK")
+                                        .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                                        .show();
+                            }
+                        });
+
+
+                    })
+                    .setCancelClickListener(KAlertDialog::dismissWithAnimation)
+                    .show();
+        });
 
     }
 }

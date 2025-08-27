@@ -117,15 +117,62 @@ public class edit_school extends AppCompatActivity {
                     String msg = response.body().getMessage();
 
                     if (msg.equalsIgnoreCase("no changes detected; update canceled.")) {
-                        showWarningDialog("No Changes Detected!", "Update has been canceled.");
+
+
+                        KAlertDialog errorDialog = new KAlertDialog(edit_school.this, true);
+                        errorDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+                        errorDialog.setTitleText("No Changes Detected!")
+                                .setContentText("Update has been canceled.")
+                                .setConfirmText("OK")
+                                .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                                .show();
+//                        showWarningDialog("No Changes Detected!", "Update has been canceled.");
                     } else if (msg.toLowerCase().contains("exists") || msg.toLowerCase().contains("error")) {
-                        showErrorDialog(msg);
+
+                        KAlertDialog errorDialog = new KAlertDialog(edit_school.this, true);
+                        errorDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+                        errorDialog.setTitleText("Update has been canceled.")
+                                .setContentText(msg)
+                                .setConfirmText("OK")
+                                .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                                .show();
+
+
+
+//                        showErrorDialog(msg);
                     } else {
-                        showSuccessDialog("Updated Successfully!", msg);
-                        finish();
+
+
+                        KAlertDialog successDialog = new KAlertDialog(edit_school.this, true);
+                        successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                        successDialog.setTitleText("Updated Successfully!")
+                                .setConfirmText("OK")
+                                .setConfirmClickListener(kAlertDialog -> {
+                                    kAlertDialog.dismissWithAnimation();
+                                    finish();
+                                })
+                                .show();
+
+
+
+
+
+//                        showSuccessDialog("Updated Successfully!", msg);
+//                        finish();
                     }
                 } else {
-                    showErrorDialog("Update failed. Server returned an error.");
+
+                    KAlertDialog errorDialog = new KAlertDialog(edit_school.this, true);
+                    errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                    errorDialog.setTitleText("Update failed. Server returned an error.")
+                            .setConfirmText("OK")
+                            .setConfirmClickListener(KAlertDialog::dismissWithAnimation)
+                            .show();
+
+
+
+
+//                    showErrorDialog("Update failed. Server returned an error.");
                 }
             }
 
