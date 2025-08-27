@@ -1,5 +1,7 @@
 package com.example.sapa;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,8 +47,15 @@ public class bills extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        billAdapter = new BillAdapter(new ArrayList<>(), bill -> {
 
-        billAdapter = new BillAdapter(new ArrayList<>());
+            Intent intent = new Intent(requireContext(), selected_bills.class);
+            intent.putExtra("BILL_CODE", bill.getBillCode());
+            intent.putExtra("BILL_AMOUNT", bill.getAmount());
+            intent.putExtra("BILL_STATUS", bill.getStatus());
+            intent.putExtra("BILL_ISSUED_AT", bill.getIssuedAt());
+            startActivity(intent);
+        });
         binding.billsView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.billsView.setAdapter(billAdapter);
 
@@ -71,11 +81,27 @@ public class bills extends Fragment {
             }
         });
 
+        SharedPreferences sharedPreferences = requireActivity()
+                .getSharedPreferences("user_session", requireActivity().MODE_PRIVATE);
+        String userId = sharedPreferences.getString("coordinator_id", "");
 
-        fetchUserBills("USR-20250820-0001");
+        if (!userId.isEmpty()) {
+            fetchUserBills(userId);
+        } else {
+            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+        }
+
+
+
+
 
         binding.payAllBtn.setOnClickListener(v -> {
+            String totalAmount = binding.totalBills.getText().toString();
 
+            Intent intent = new Intent(requireContext(), total_payment.class);
+            intent.putExtra("TOTAL_AMOUNT", totalAmount);
+            intent.putExtra("USER_ID", userId);
+            startActivity(intent);
         });
     }
 

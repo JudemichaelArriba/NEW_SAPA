@@ -17,12 +17,16 @@ import java.util.List;
 
 public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillViewHolder> {
 
-    private List<Bill> billList = new ArrayList<>(); // initialize as empty list
+    private List<Bill> billList = new ArrayList<>();
+    private OnBillClickListener listener;
 
-    public BillAdapter(List<Bill> billList) {
-        if (billList != null) {
-            this.billList.addAll(billList);
-        }
+    public interface OnBillClickListener {
+        void onBillClick(Bill bill);
+    }
+
+    public BillAdapter(List<Bill> billList, OnBillClickListener listener) {
+        if (billList != null) this.billList.addAll(billList);
+        this.listener = listener;
     }
 
     @NonNull
@@ -40,6 +44,21 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillViewHolder
         holder.amount.setText(String.format("₱ %.2f", bill.getAmount()));
         holder.issuedAtValue.setText(bill.getIssuedAt());
         holder.statusValue.setText(bill.getStatus());
+
+
+        if (bill.getStatus().equalsIgnoreCase("Paid") || bill.getStatus().equalsIgnoreCase("Cancelled")) {
+            holder.itemView.setAlpha(0.5f);
+            holder.itemView.setClickable(false);
+        } else {
+            holder.itemView.setAlpha(1f);
+            holder.itemView.setClickable(true);
+
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onBillClick(bill);
+                }
+            });
+        }
     }
 
     @Override
@@ -59,16 +78,11 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillViewHolder
         }
     }
 
-    // safer updateList method
     public void updateList(List<Bill> newList) {
-        
-        if (newList == null) {
-            Log.d("BILLSadapter", "New list is null, nothing to update");
-            return;
-        }
+        if (newList == null) return;
         billList.clear();
         billList.addAll(newList);
-        Log.d("BILLSadapter", "Updated billList size: " + billList);
         notifyDataSetChanged();
     }
 }
+

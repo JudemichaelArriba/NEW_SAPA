@@ -87,6 +87,9 @@
                 android:textColor="@color/mainColor"
                 android:textStyle="bold"/>
 
+
+
+
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
@@ -98,13 +101,40 @@
                 android:text="See All"
                 android:textSize="14sp"
                 android:textColor="#6200EE"/>
+
+
+
+
+
+
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/billsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="57dp"
+            android:visibility="gone"
+            >
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/billsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp" />
+
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical">
 
 
         </LinearLayout>

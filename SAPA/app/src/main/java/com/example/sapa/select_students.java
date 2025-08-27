@@ -51,46 +51,25 @@ public class select_students extends AppCompatActivity {
         });
 
         String slotName = getIntent().getStringExtra("slot_name");
-        Log.d("SelectStudents", "slotName: " + slotName);
-
         String startTime = getIntent().getStringExtra("start_time");
-        Log.d("SelectStudents", "startTime: " + startTime);
-
         String endTime = getIntent().getStringExtra("end_time");
-        Log.d("SelectStudents", "endTime: " + endTime);
-
         int maxCapacity = getIntent().getIntExtra("max_capacity", 0);
-        Log.d("SelectStudents", "maxCapacity: " + maxCapacity);
-
         String hospitalName = getIntent().getStringExtra("hospital_name");
-        Log.d("SelectStudents", "hospitalName: " + hospitalName);
-
         String sectionName = getIntent().getStringExtra("section_name");
-        Log.d("SelectStudents", "sectionName: " + sectionName);
-
         int sectionId = getIntent().getIntExtra("section_id", 0);
-        Log.d("SelectStudents", "sectionId: " + sectionId);
-
         String hospitalId = getIntent().getStringExtra("hospital_id");
-        Log.d("SelectStudents", "hospitalId: " + hospitalId);
-
         schoolId = getIntent().getStringExtra("school_id");
-        Log.d("SelectStudents", "schoolId: " + schoolId);
-
         int slotId = getIntent().getIntExtra("slot_id", 0);
-        Log.d("SelectStudents", "slotId: " + slotId);
-
         double payments = getIntent().getDoubleExtra("billing", 0.0);
-        Log.d("SelectStudents", "payments: " + payments);
-
         String userId = getIntent().getStringExtra("user_id");
-        Log.d("SelectStudents", " user_id: " + userId);
 
+        // ✅ Setup RecyclerView + Adapter
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new StudentAdapter(studentsList, this, true);
-
+        adapter.setMaxSelection(maxCapacity); // 👈 enforce max selection here
         binding.recyclerView.setAdapter(adapter);
 
+        // Hide action button until a student is selected
         binding.actionButton.setVisibility(View.GONE);
         adapter.setOnSelectionChangeListener(selectedCount ->
                 binding.actionButton.setVisibility(selectedCount > 0 ? View.VISIBLE : View.GONE)
@@ -101,20 +80,11 @@ public class select_students extends AppCompatActivity {
         binding.backButton.setOnClickListener(v -> finish());
 
         binding.actionButton.setOnClickListener(v -> {
-            List<Students> selectedStudents = adapter.getSelectedStudents();
-            if (selectedStudents == null) selectedStudents = new ArrayList<>();
+            ArrayList<String> selectedStudentIds = adapter.getSelectedIds();
 
-            if (selectedStudents.size() > maxCapacity) {
-                Log.d("selectedStudents", "maximum: " + maxCapacity);
-                Toast.makeText(this, "Selected students exceed maximum capacity", Toast.LENGTH_SHORT).show();
+            if (selectedStudentIds.isEmpty()) {
+                Toast.makeText(this, "Please select at least one student", Toast.LENGTH_SHORT).show();
                 return;
-            }
-
-            ArrayList<String> selectedStudentIds = new ArrayList<>();
-            for (Students s : selectedStudents) {
-                if (s.getId() != null) {
-                    selectedStudentIds.add(s.getId());
-                }
             }
 
             Intent intent = new Intent(this, make_appointment.class);
@@ -131,6 +101,7 @@ public class select_students extends AppCompatActivity {
             intent.putExtra("billing", payments);
             intent.putExtra("user_id", userId);
 
+            // ✅ send directly
             intent.putStringArrayListExtra("selected_student_ids", selectedStudentIds);
 
             startActivity(intent);
@@ -152,9 +123,7 @@ public class select_students extends AppCompatActivity {
             return;
         }
 
-
-        Call<List<Students>> call = apiInterface.getVacantStudents(coordinatorId,schoolId);
-        Log.d("SelectStudents", "Students: " + schoolId);
+        Call<List<Students>> call = apiInterface.getVacantStudents(coordinatorId, schoolId);
         call.enqueue(new Callback<List<Students>>() {
             @Override
             public void onResponse(Call<List<Students>> call, Response<List<Students>> response) {
@@ -163,21 +132,18 @@ public class select_students extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Students> filtered = new ArrayList<>();
                     for (Students s : response.body()) {
-                        Log.d("SelectStudents", "Student schoolId: " + s.getSchoolId() + " | Expected: " + schoolId);
                         if (schoolId != null && schoolId.equals(s.getSchoolId())) {
                             filtered.add(s);
                         }
                     }
 
                     if (filtered.isEmpty()) {
-
                         Toast.makeText(select_students.this, "No vacant students found for this school", Toast.LENGTH_SHORT).show();
                     }
 
                     adapter.updateData(filtered);
 
                 } else {
-                    Log.d("SelectStudents", "Students: " + response.message());
                     Toast.makeText(select_students.this, "Failed to fetch students", Toast.LENGTH_SHORT).show();
                 }
             }

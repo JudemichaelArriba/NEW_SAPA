@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +27,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     private Set<String> selectedIds = new HashSet<>();
     private boolean selectionMode = false;
     private boolean enableSelection;
+    private int maxSelection = Integer.MAX_VALUE; // 👈 default unlimited
 
     // 🔹 Callback for multi-select
     public interface OnSelectionChangeListener {
@@ -53,6 +55,11 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.studentList = studentList;
         this.context = context;
         this.enableSelection = enableSelection;
+    }
+
+    // 👇 Allow activity to set max capacity
+    public void setMaxSelection(int max) {
+        this.maxSelection = max;
     }
 
     @NonNull
@@ -99,6 +106,9 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             }
             return false;
         });
+
+        // 🔹 Checkbox click = same toggle
+        holder.studentCheckBox.setOnClickListener(v -> toggleSelection(student));
     }
 
     @Override
@@ -108,8 +118,13 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
     private void toggleSelection(Students student) {
         if (selectedIds.contains(student.getId())) {
+            // 👇 remove if unselected
             selectedIds.remove(student.getId());
         } else {
+            if (selectedIds.size() >= maxSelection) {
+                Toast.makeText(context, "You can only select up to " + maxSelection + " students", Toast.LENGTH_SHORT).show();
+                return; // 🚫 don't allow more than max
+            }
             selectedIds.add(student.getId());
         }
         notifyDataSetChanged();
@@ -117,6 +132,21 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         if (selectionChangeListener != null) {
             selectionChangeListener.onSelectionChanged(selectedIds.size());
         }
+    }
+
+    // 👇 Allows unselecting from activity
+    public void unselectStudent(Students student) {
+        selectedIds.remove(student.getId());
+        notifyDataSetChanged();
+
+        if (selectionChangeListener != null) {
+            selectionChangeListener.onSelectionChanged(selectedIds.size());
+        }
+    }
+
+    // ✅ Return actual selected IDs
+    public ArrayList<String> getSelectedIds() {
+        return new ArrayList<>(selectedIds);
     }
 
     public static class StudentViewHolder extends RecyclerView.ViewHolder {

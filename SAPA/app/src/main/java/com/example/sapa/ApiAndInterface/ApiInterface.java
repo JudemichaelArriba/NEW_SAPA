@@ -98,6 +98,12 @@ public interface ApiInterface {
     );
 
 
+    @FormUrlEncoded
+    @POST("pay_total_bills.php")
+    Call<defaultResponse> payTotalBills(
+            @Field("user_id") String userId,
+            @Field("amount") double amount
+    );
     @Multipart
     @POST("add_school.php")
     Call<defaultResponse> addSchool(
@@ -109,6 +115,16 @@ public interface ApiInterface {
             @Part MultipartBody.Part profileImage
     );
 
+
+
+
+
+    @FormUrlEncoded
+    @POST("pay_specific_bill.php")
+    Call<defaultResponse> paySpecificBill(
+            @Field("user_id") String userId,
+            @Field("bill_code") String billCode
+    );
 
     @GET("getSchool.php")
     Call<List<School>> getSchools(@Query("coordinator_id") String coordinatorId);
