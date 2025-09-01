@@ -112,6 +112,7 @@ public class Home extends Fragment {
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 Toast.makeText(getActivity(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("home", "Error: " + t.getMessage());
             }
         });
     }

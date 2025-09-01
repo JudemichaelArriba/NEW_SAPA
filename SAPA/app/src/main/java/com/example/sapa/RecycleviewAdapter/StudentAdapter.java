@@ -27,11 +27,11 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     private Set<String> selectedIds = new HashSet<>();
     private boolean selectionMode = false;
     private boolean enableSelection;
-    private int maxSelection = Integer.MAX_VALUE; // 👈 default unlimited
+    private int maxSelection = Integer.MAX_VALUE;
 
-    // 🔹 Callback for multi-select
+
     public interface OnSelectionChangeListener {
-        void onSelectionChanged(int count);
+        void onSelectionChanged(int count, boolean selectionModeActive);
     }
 
     private OnSelectionChangeListener selectionChangeListener;
@@ -40,7 +40,6 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.selectionChangeListener = listener;
     }
 
-    // 🔹 Callback for single-click (student info)
     public interface OnStudentClickListener {
         void onStudentClick(Students student);
     }
@@ -57,7 +56,6 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.enableSelection = enableSelection;
     }
 
-    // 👇 Allow activity to set max capacity
     public void setMaxSelection(int max) {
         this.maxSelection = max;
     }
@@ -81,15 +79,12 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         holder.studentCheckBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
         holder.studentCheckBox.setChecked(selectedIds.contains(student.getId()));
 
-        // 🔹 Click behavior changes depending on mode
         holder.itemView.setOnClickListener(v -> {
             int currentPos = holder.getAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
                 if (enableSelection && selectionMode) {
-                    // Multi-select mode
                     toggleSelection(student);
                 } else if (!enableSelection) {
-                    // Normal click → open student info
                     if (studentClickListener != null) {
                         studentClickListener.onStudentClick(student);
                     }
@@ -97,17 +92,16 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             }
         });
 
-        // 🔹 Long click only used to start multi-select
         holder.itemView.setOnLongClickListener(v -> {
             if (enableSelection && !selectionMode) {
                 selectionMode = true;
                 toggleSelection(student);
+                notifySelectionChange();
                 return true;
             }
             return false;
         });
 
-        // 🔹 Checkbox click = same toggle
         holder.studentCheckBox.setOnClickListener(v -> toggleSelection(student));
     }
 
@@ -118,33 +112,30 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
     private void toggleSelection(Students student) {
         if (selectedIds.contains(student.getId())) {
-            // 👇 remove if unselected
             selectedIds.remove(student.getId());
         } else {
             if (selectedIds.size() >= maxSelection) {
                 Toast.makeText(context, "You can only select up to " + maxSelection + " students", Toast.LENGTH_SHORT).show();
-                return; // 🚫 don't allow more than max
+                return;
             }
             selectedIds.add(student.getId());
         }
         notifyDataSetChanged();
+        notifySelectionChange();
+    }
 
+    private void notifySelectionChange() {
         if (selectionChangeListener != null) {
-            selectionChangeListener.onSelectionChanged(selectedIds.size());
+            selectionChangeListener.onSelectionChanged(selectedIds.size(), selectionMode);
         }
     }
 
-    // 👇 Allows unselecting from activity
     public void unselectStudent(Students student) {
         selectedIds.remove(student.getId());
         notifyDataSetChanged();
-
-        if (selectionChangeListener != null) {
-            selectionChangeListener.onSelectionChanged(selectedIds.size());
-        }
+        notifySelectionChange();
     }
 
-    // ✅ Return actual selected IDs
     public ArrayList<String> getSelectedIds() {
         return new ArrayList<>(selectedIds);
     }
@@ -176,19 +167,41 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.studentList.clear();
         this.studentList.addAll(newStudents);
         selectedIds.clear();
+        selectionMode = false;
         notifyDataSetChanged();
-
-        if (selectionChangeListener != null) {
-            selectionChangeListener.onSelectionChanged(0);
-        }
+        notifySelectionChange();
     }
 
     public void clearSelection() {
         selectionMode = false;
         selectedIds.clear();
         notifyDataSetChanged();
-        if (selectionChangeListener != null) {
-            selectionChangeListener.onSelectionChanged(0);
+        notifySelectionChange();
+    }
+
+
+    public void selectAllStudents() {
+        if (studentList.size() > maxSelection) {
+            Toast.makeText(context, "Cannot select all. Max allowed: " + maxSelection, Toast.LENGTH_SHORT).show();
+            return;
         }
+        selectionMode = true;
+        selectedIds.clear();
+        for (Students s : studentList) {
+            selectedIds.add(s.getId());
+        }
+        notifyDataSetChanged();
+        notifySelectionChange();
+    }
+
+
+    public void unselectAllStudents() {
+        selectedIds.clear();
+        notifyDataSetChanged();
+        notifySelectionChange();
+    }
+
+    public boolean isSelectionMode() {
+        return selectionMode;
     }
 }

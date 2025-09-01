@@ -8,6 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.developer.kalert.KAlertDialog;
 import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.databinding.ActivityTotalPaymentBinding;
@@ -44,11 +45,30 @@ public class total_payment extends AppCompatActivity {
         binding.backButton.setOnClickListener(v -> finish());
 
         binding.payButton.setOnClickListener(v -> {
-            if (userId != null && totalAmountStr != null) {
-                double totalAmount = Double.parseDouble(totalAmountStr.replace("₱", ""));
-                payTotalBills(userId, totalAmount);
-            } else {
-                Toast.makeText(this, "Invalid data", Toast.LENGTH_SHORT).show();
+            String valueStr = binding.amountInput.getText().toString().trim();
+
+            if (userId == null || totalAmountStr == null || valueStr.isEmpty()) {
+                Toast.makeText(this, "Please enter a value!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            try {
+                double enteredAmount = Double.parseDouble(valueStr);
+                double totalAmount = Double.parseDouble(totalAmountStr.replace("₱", "").trim());
+
+                if (enteredAmount <= 0) {
+                    showErrorDialog("Invalid Amount", "Amount must be greater than 0");
+                } else if (enteredAmount < totalAmount) {
+                    showErrorDialog("Insufficient Payment", "Entered amount is less than the total bill.");
+                } else if (enteredAmount > totalAmount) {
+                    showErrorDialog("Overpayment", "Entered amount is more than the total bill.");
+                } else {
+
+                    payTotalBills(userId, enteredAmount);
+                }
+
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid amount format", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -61,10 +81,19 @@ public class total_payment extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     defaultResponse res = response.body();
                     if ("success".equalsIgnoreCase(res.getStatus())) {
-                        Toast.makeText(total_payment.this, "Payment successful!", Toast.LENGTH_SHORT).show();
-                        finish(); // Close the activity after payment
+                        KAlertDialog successDialog = new KAlertDialog(total_payment.this, true);
+                        successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                        successDialog.setTitleText("Successful")
+                                .setContentText("Payment successful!")
+                                .setConfirmText("OK")
+                                .confirmButtonColor(R.color.mainColor)
+                                .setConfirmClickListener(sweetAlertDialog -> {
+                                    sweetAlertDialog.dismissWithAnimation();
+                                    finish();
+                                })
+                                .show();
                     } else {
-                        Toast.makeText(total_payment.this, "Failed: " + res.getMessage(), Toast.LENGTH_LONG).show();
+                        showErrorDialog("Unsuccessful", "Payment unsuccessful!");
                     }
                 } else {
                     Toast.makeText(total_payment.this, "API response failed!", Toast.LENGTH_SHORT).show();
@@ -76,5 +105,16 @@ public class total_payment extends AppCompatActivity {
                 Toast.makeText(total_payment.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void showErrorDialog(String title, String message) {
+        KAlertDialog errorDialog = new KAlertDialog(total_payment.this, true);
+        errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+        errorDialog.setTitleText(title)
+                .setContentText(message)
+                .setConfirmText("OK")
+                .confirmButtonColor(R.color.mainColor)
+                .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
+                .show();
     }
 }

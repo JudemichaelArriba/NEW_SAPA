@@ -190,4 +190,13 @@ public interface ApiInterface {
     );
 
 
+
+
+    @GET("get_studentBaseAppointment.php")
+    Call<List<Students>> getStudentsBySlot(
+            @Query("slot_id") int slotId
+    );
+
+
+
 }

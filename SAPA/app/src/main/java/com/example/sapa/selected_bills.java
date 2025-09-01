@@ -42,10 +42,11 @@ public class selected_bills extends AppCompatActivity {
         billAmount = getIntent().getDoubleExtra("BILL_AMOUNT", 0);
         String billStatus = getIntent().getStringExtra("BILL_STATUS");
         String issuedAt = getIntent().getStringExtra("BILL_ISSUED_AT");
+
         Log.e("selectedBills", "Bill code: " + billCode);
+
         binding.amountInput.setText(String.valueOf(billAmount));
         binding.totalAmount.setText("₱ " + billAmount);
-
 
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", MODE_PRIVATE);
         String userId = sharedPreferences.getString("coordinator_id", "");
@@ -56,25 +57,49 @@ public class selected_bills extends AppCompatActivity {
                 return;
             }
 
+            String valueStr = binding.amountInput.getText().toString().trim();
+            if (valueStr.isEmpty()) {
+                Toast.makeText(this, "Please enter a value!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
-            Call<defaultResponse> call = api.paySpecificBill(userId, billCode);
-            call.enqueue(new Callback<defaultResponse>() {
-                @Override
-                public void onResponse(Call<defaultResponse> call, Response<defaultResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        Toast.makeText(selected_bills.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(selected_bills.this, "Payment failed.", Toast.LENGTH_SHORT).show();
+            try {
+                double enteredAmount = Double.parseDouble(valueStr);
+
+                if (enteredAmount <= 0) {
+                    Toast.makeText(this, "Amount must be greater than 0", Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (enteredAmount < billAmount) {
+                    Toast.makeText(this, "Payment is not enough. Please pay the full amount.", Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (enteredAmount > billAmount) {
+                    Toast.makeText(this, "Payment is too much. Enter the exact amount.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+
+                ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
+                Call<defaultResponse> call = api.paySpecificBill(userId, billCode);
+                call.enqueue(new Callback<defaultResponse>() {
+                    @Override
+                    public void onResponse(Call<defaultResponse> call, Response<defaultResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Toast.makeText(selected_bills.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(selected_bills.this, "Payment failed.", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<defaultResponse> call, Throwable t) {
-                    Toast.makeText(selected_bills.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void onFailure(Call<defaultResponse> call, Throwable t) {
+                        Toast.makeText(selected_bills.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid amount format", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

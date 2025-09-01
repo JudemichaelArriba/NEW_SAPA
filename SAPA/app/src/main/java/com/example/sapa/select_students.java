@@ -2,7 +2,6 @@ package com.example.sapa;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,6 +34,7 @@ public class select_students extends AppCompatActivity {
     private boolean isFetching = false;
 
     private String schoolId;
+    private boolean allSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +63,18 @@ public class select_students extends AppCompatActivity {
         double payments = getIntent().getDoubleExtra("billing", 0.0);
         String userId = getIntent().getStringExtra("user_id");
 
-        // ✅ Setup RecyclerView + Adapter
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new StudentAdapter(studentsList, this, true);
-        adapter.setMaxSelection(maxCapacity); // 👈 enforce max selection here
+        adapter.setMaxSelection(maxCapacity);
         binding.recyclerView.setAdapter(adapter);
 
-        // Hide action button until a student is selected
         binding.actionButton.setVisibility(View.GONE);
-        adapter.setOnSelectionChangeListener(selectedCount ->
-                binding.actionButton.setVisibility(selectedCount > 0 ? View.VISIBLE : View.GONE)
-        );
+        binding.selectAllCheckBox.setVisibility(View.GONE);
+
+        adapter.setOnSelectionChangeListener((selectedCount, selectionModeActive) -> {
+            binding.actionButton.setVisibility(selectedCount > 0 ? View.VISIBLE : View.GONE);
+            binding.selectAllCheckBox.setVisibility(selectionModeActive ? View.VISIBLE : View.GONE);
+        });
 
         apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
@@ -100,11 +101,21 @@ public class select_students extends AppCompatActivity {
             intent.putExtra("slot_id", slotId);
             intent.putExtra("billing", payments);
             intent.putExtra("user_id", userId);
-
-            // ✅ send directly
             intent.putStringArrayListExtra("selected_student_ids", selectedStudentIds);
 
             startActivity(intent);
+        });
+
+        binding.selectAllCheckBox.setOnClickListener(v -> {
+            if (allSelected) {
+                adapter.unselectAllStudents();
+                binding.selectAllCheckBox.setText("Select All");
+                allSelected = false;
+            } else {
+                adapter.selectAllStudents();
+                binding.selectAllCheckBox.setText("Unselect All");
+                allSelected = true;
+            }
         });
 
         fetchStudentsBySchool();

@@ -58,8 +58,6 @@ public class make_appointment extends AppCompatActivity {
         ArrayList<String> selectedStudentIds = getIntent().getStringArrayListExtra("selected_student_ids");
 
 
-
-
         Log.d("MakeAppointment", "userId: " + userId);
         Log.d("MakeAppointment", "students: " + selectedStudentIds);
 
@@ -78,13 +76,10 @@ public class make_appointment extends AppCompatActivity {
             }
 
 
-
             if (userId == null) {
                 Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-
 
 
             Log.d("MakeAppointment", "Sending student IDs: " + selectedStudentIds);

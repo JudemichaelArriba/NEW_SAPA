@@ -8,11 +8,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
+import com.example.sapa.RecycleviewAdapter.StudentAdapter;
 import com.example.sapa.databinding.ActivitySelectedAppointmentBinding;
+import com.example.sapa.models.Students;
 import com.example.sapa.models.defaultResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,6 +27,8 @@ import retrofit2.Response;
 public class selected_appointment extends AppCompatActivity {
 
     private ActivitySelectedAppointmentBinding binding;
+    private StudentAdapter studentAdapter;
+    private List<Students> studentList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +51,7 @@ public class selected_appointment extends AppCompatActivity {
         String status = getIntent().getStringExtra("status");
         int totalStudents = getIntent().getIntExtra("totalStudents", 0);
         int slotId = getIntent().getIntExtra("slot_id", -1);
-        Log.d("selected_appointments", "slotId: "+ slotId );
+        Log.d("selected_appointments", "slotId: " + slotId);
 
         binding.slotNameValue.setText(slotName != null ? slotName : "N/A");
         binding.startTimeValue.setText(startTime != null ? startTime : "N/A");
@@ -52,6 +60,21 @@ public class selected_appointment extends AppCompatActivity {
         binding.sectionNameValue.setText(sectionName != null ? sectionName : "N/A");
         binding.statusValue.setText(status != null ? status : "N/A");
         binding.maxCapacityValue.setText(String.valueOf(totalStudents));
+
+
+        binding.studentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        studentAdapter = new StudentAdapter(studentList, this, false); // disable selection mode
+        binding.studentsRecyclerView.setAdapter(studentAdapter);
+
+
+        if (slotId != -1) {
+            fetchStudents(slotId);
+
+        }
+        binding.backButton.setOnClickListener(v ->{
+            finish();
+        });
+
 
         binding.cancelAppointmentBtn.setOnClickListener(v -> {
             if (slotId == -1) {
@@ -71,7 +94,7 @@ public class selected_appointment extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        Log.d("selected_appointments", "response: "+  response.body() );
+                        Log.d("selected_appointments", "response: " + response.body());
                         Toast.makeText(selected_appointment.this,
                                 "Failed to cancel appointments",
                                 Toast.LENGTH_SHORT).show();
@@ -80,7 +103,7 @@ public class selected_appointment extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<defaultResponse> call, Throwable t) {
-                    Log.d("selected_appointments", "slotId: "+  t.getMessage() );
+                    Log.d("selected_appointments", "error: " + t.getMessage());
                     Toast.makeText(selected_appointment.this,
                             "Error: " + t.getMessage(),
                             Toast.LENGTH_SHORT).show();
@@ -88,4 +111,35 @@ public class selected_appointment extends AppCompatActivity {
             });
         });
     }
+
+    private void fetchStudents(int slotId) {
+        ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
+        Call<List<Students>> call = api.getStudentsBySlot(slotId);
+
+        call.enqueue(new Callback<List<Students>>() {
+            @Override
+            public void onResponse(Call<List<Students>> call, Response<List<Students>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    studentList.clear();
+                    studentList.addAll(response.body());
+                    studentAdapter.notifyDataSetChanged();
+                    for (Students s : studentList) {
+                        Log.d("selected_appointments", "Student: " + s.getStudentFullname()
+                                + ", Email: " + s.getEmail()
+                                + ", School: " + s.getSchoolName());
+                    }
+                } else {
+                    Log.d("selected_appointments", "Empty response or null body");
+                    Toast.makeText(selected_appointment.this, "No students found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Students>> call, Throwable t) {
+                Log.e("selected_appointments", "Error fetching students: " + t.getMessage(), t);
+                Toast.makeText(selected_appointment.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
