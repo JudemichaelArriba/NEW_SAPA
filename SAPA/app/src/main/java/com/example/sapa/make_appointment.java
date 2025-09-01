@@ -112,8 +112,22 @@ public class make_appointment extends AppCompatActivity {
 
                         }
                     } else {
+
+
+                        KAlertDialog successDialog = new KAlertDialog(make_appointment.this, true);
+                        successDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                        successDialog.setTitleText("Error")
+                                .setContentText("Failed to add appointment")
+                                .setConfirmText("OK")
+                                .confirmButtonColor(R.color.mainColor)
+                                .setConfirmClickListener(sweetAlertDialog -> {
+                                    sweetAlertDialog.dismissWithAnimation();
+                                })
+                                .show();
+
+
                         Log.e("make_appointment", "Unexpected response code: " + response.code());
-                        Toast.makeText(make_appointment.this, "Failed to add appointment", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(make_appointment.this, "Failed to add appointment", Toast.LENGTH_SHORT).show();
                     }
                 }
 

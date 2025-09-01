@@ -26,10 +26,7 @@ import com.example.sapa.databinding.FragmentAppointmentsPageBinding;
 import com.example.sapa.models.UpcomingAppointment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,7 +57,6 @@ public class Appointments_page extends Fragment {
         allAppointments = new ArrayList<>();
         adapter = new UpcomingAppointmentsAdapter(requireContext(), appointmentList, appointment -> {
 
-
             int totalStudents = 0;
             for (UpcomingAppointment appt : allAppointments) {
                 if (appt.getSlotId() == appointment.getSlotId()) {
@@ -79,9 +75,11 @@ public class Appointments_page extends Fragment {
             intent.putExtra("hospitalName", appointment.getHospitalName());
             intent.putExtra("sectionName", appointment.getSectionName());
             intent.putExtra("status", appointment.getAppointmentStatus());
-            intent.putExtra("totalStudents", totalStudents);
+            intent.putExtra("totalStudents", appointment.getStudentCount());
+
             intent.putExtra("slot_id", appointment.getSlotId());
-            Log.d("appointment_page", "slotId: "+  appointment.getSlotId() );
+            intent.putExtra("appointment_id", appointment.getAppointmentId());
+            Log.d("appointment_page", "slotId: " + appointment.getSlotId());
             startActivity(intent);
         });
 
@@ -143,12 +141,12 @@ public class Appointments_page extends Fragment {
                     appointmentList.clear();
                     allAppointments.clear();
 
-                    List<UpcomingAppointment> uniqueAppointments = removeDuplicateAppointments(response.body());
-                    appointmentList.addAll(uniqueAppointments);
+
+                    appointmentList.addAll(response.body());
                     allAppointments.addAll(response.body());
 
                     adapter.notifyDataSetChanged();
-                    Toast.makeText(requireContext(), "Fetched " + appointmentList.size() + " unique appointments", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Fetched " + appointmentList.size() + " appointments", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), "No appointments found", Toast.LENGTH_SHORT).show();
                 }
@@ -162,7 +160,7 @@ public class Appointments_page extends Fragment {
     }
 
     private void filterAppointments(String status, String query) {
-        Map<Integer, UpcomingAppointment> slotMap = new HashMap<>();
+        appointmentList.clear();
 
         for (UpcomingAppointment appt : allAppointments) {
             boolean matchesStatus = status.equals("All") ||
@@ -174,25 +172,11 @@ public class Appointments_page extends Fragment {
                     (appt.getAppointmentStatus() != null && appt.getAppointmentStatus().toLowerCase().contains(query.toLowerCase()));
 
             if (matchesStatus && matchesSearch) {
-                slotMap.putIfAbsent(appt.getSlotId(), appt);
+                appointmentList.add(appt);
             }
         }
 
-        appointmentList.clear();
-        appointmentList.addAll(slotMap.values());
         adapter.notifyDataSetChanged();
-    }
-
-    private List<UpcomingAppointment> removeDuplicateAppointments(List<UpcomingAppointment> appointments) {
-        List<UpcomingAppointment> uniqueList = new ArrayList<>();
-        HashSet<Integer> seenSlotIds = new HashSet<>();
-
-        for (UpcomingAppointment appt : appointments) {
-            if (seenSlotIds.add(appt.getSlotId())) {
-                uniqueList.add(appt);
-            }
-        }
-        return uniqueList;
     }
 
     @Override

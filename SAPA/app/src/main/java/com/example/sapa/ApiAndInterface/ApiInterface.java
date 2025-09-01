@@ -69,7 +69,8 @@ public interface ApiInterface {
 
     @FormUrlEncoded
     @POST("cancel_appointments.php")
-    Call<defaultResponse> cancelAppointmentsBySlot(@Field("slot_id") int slotId);
+    Call<defaultResponse> cancelAppointmentsByAppointmentId(@Field("appointment_id") int appointmentId);
+
 
     @FormUrlEncoded
     @POST("update_student.php")
@@ -193,8 +194,8 @@ public interface ApiInterface {
 
 
     @GET("get_studentBaseAppointment.php")
-    Call<List<Students>> getStudentsBySlot(
-            @Query("slot_id") int slotId
+    Call<List<Students>> getStudentsByAppointment(
+            @Query("appointment_id") int appointment_id
     );
 
 

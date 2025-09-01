@@ -1,0 +1,127 @@
+[26-Aug-2025 16:13:48 Europe/Berlin] PHP Warning:  require_once(db_connect.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\android_api\add_appointment.php on line 9
+[26-Aug-2025 16:13:48 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'db_connect.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\android_api\add_appointment.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\add_appointment.php on line 9
+[28-Aug-2025 09:52:14 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:52:14 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:52:14 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:52:14 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Incorrect number of arguments for PROCEDURE sapa5.getUserProfile; expected 0, got 1 in C:\xampp\htdocs\android_api\get_user2.php:32
+Stack trace:
+#0 C:\xampp\htdocs\android_api\get_user2.php(32): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\xampp\htdocs\android_api\get_user2.php on line 32
+[28-Aug-2025 09:52:16 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:52:16 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:52:16 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:52:16 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Incorrect number of arguments for PROCEDURE sapa5.getUserProfile; expected 0, got 1 in C:\xampp\htdocs\android_api\get_user2.php:32
+Stack trace:
+#0 C:\xampp\htdocs\android_api\get_user2.php(32): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\xampp\htdocs\android_api\get_user2.php on line 32
+[28-Aug-2025 09:52:16 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:52:16 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:52:16 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:52:16 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Incorrect number of arguments for PROCEDURE sapa5.getUserProfile; expected 0, got 1 in C:\xampp\htdocs\android_api\get_user2.php:32
+Stack trace:
+#0 C:\xampp\htdocs\android_api\get_user2.php(32): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\xampp\htdocs\android_api\get_user2.php on line 32
+[28-Aug-2025 09:53:10 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:53:10 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:53:10 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:53:10 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Incorrect number of arguments for PROCEDURE sapa5.getUserProfile; expected 0, got 1 in C:\xampp\htdocs\android_api\get_user2.php:32
+Stack trace:
+#0 C:\xampp\htdocs\android_api\get_user2.php(32): mysqli_stmt->execute()
+#1 {main}
+  thrown in C:\xampp\htdocs\android_api\get_user2.php on line 32
+[28-Aug-2025 09:54:29 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:29 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:29 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:29 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:29 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:29 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:31 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:31 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:31 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:31 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:31 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:31 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:32 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:32 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:32 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:32 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:32 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:32 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:36 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:36 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:36 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:36 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:36 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:36 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:38 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:38 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:38 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:38 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:38 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:38 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:40 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:40 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:40 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:40 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:40 Europe/Berlin] User found: {"user_id":"USR-20250828-0001","full_name":"jude arriba","email":"jssjsjsjsjsjjsjsjsj","mobile":"95649779496","username":"coordinator","role":"Coordinator","status":"Pending","profile_image":null}
+[28-Aug-2025 09:54:40 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:56 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:56 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] User found: 
+[28-Aug-2025 09:54:56 Europe/Berlin] Connection closed
+[28-Aug-2025 09:54:56 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:54:56 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:54:56 Europe/Berlin] User found: 
+[28-Aug-2025 09:54:56 Europe/Berlin] Connection closed
+[28-Aug-2025 09:55:03 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:55:03 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:55:03 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:55:03 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:55:03 Europe/Berlin] User found: 
+[28-Aug-2025 09:55:03 Europe/Berlin] Connection closed
+[28-Aug-2025 09:55:50 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:55:50 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:55:50 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:55:50 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:55:50 Europe/Berlin] User found: 
+[28-Aug-2025 09:55:50 Europe/Berlin] Connection closed
+[28-Aug-2025 09:55:52 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:55:52 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:55:52 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:55:52 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:55:52 Europe/Berlin] User found: 
+[28-Aug-2025 09:55:52 Europe/Berlin] Connection closed
+[28-Aug-2025 09:56:31 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:56:31 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:56:31 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:56:31 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:56:31 Europe/Berlin] User found: 
+[28-Aug-2025 09:56:31 Europe/Berlin] Connection closed
+[28-Aug-2025 09:56:59 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:56:59 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:56:59 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:56:59 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:56:59 Europe/Berlin] User found: 
+[28-Aug-2025 09:56:59 Europe/Berlin] Connection closed
+[28-Aug-2025 09:57:03 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:57:03 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:57:03 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:57:03 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:57:03 Europe/Berlin] User found: 
+[28-Aug-2025 09:57:03 Europe/Berlin] Connection closed
+[28-Aug-2025 09:57:59 Europe/Berlin] db_config.php included successfully
+[28-Aug-2025 09:57:59 Europe/Berlin] Requested user_id: USR-20250828-0001
+[28-Aug-2025 09:57:59 Europe/Berlin] Prepared statement successfully
+[28-Aug-2025 09:57:59 Europe/Berlin] Statement executed successfully
+[28-Aug-2025 09:57:59 Europe/Berlin] User found: 
+[28-Aug-2025 09:57:59 Europe/Berlin] Connection closed

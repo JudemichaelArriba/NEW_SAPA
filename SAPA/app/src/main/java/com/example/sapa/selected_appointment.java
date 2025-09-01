@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.developer.kalert.KAlertDialog;
 import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.RecycleviewAdapter.StudentAdapter;
@@ -43,6 +44,7 @@ public class selected_appointment extends AppCompatActivity {
             return insets;
         });
 
+
         String slotName = getIntent().getStringExtra("slotName");
         String startTime = getIntent().getStringExtra("startTime");
         String endTime = getIntent().getStringExtra("endTime");
@@ -50,8 +52,9 @@ public class selected_appointment extends AppCompatActivity {
         String sectionName = getIntent().getStringExtra("sectionName");
         String status = getIntent().getStringExtra("status");
         int totalStudents = getIntent().getIntExtra("totalStudents", 0);
-        int slotId = getIntent().getIntExtra("slot_id", -1);
-        Log.d("selected_appointments", "slotId: " + slotId);
+        int appointment_id = getIntent().getIntExtra("appointment_id", -1);
+
+        Log.d("selected_appointments", "appointment_id: " + appointment_id);
 
         binding.slotNameValue.setText(slotName != null ? slotName : "N/A");
         binding.startTimeValue.setText(startTime != null ? startTime : "N/A");
@@ -62,42 +65,62 @@ public class selected_appointment extends AppCompatActivity {
         binding.maxCapacityValue.setText(String.valueOf(totalStudents));
 
 
+        if (status != null && status.equalsIgnoreCase("Cancelled")) {
+            binding.cancelAppointmentBtn.setEnabled(false);
+            binding.cancelAppointmentBtn.setAlpha(0.5f);
+        } else {
+            binding.cancelAppointmentBtn.setEnabled(true);
+            binding.cancelAppointmentBtn.setAlpha(1f);
+        }
+
+
         binding.studentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        studentAdapter = new StudentAdapter(studentList, this, false); // disable selection mode
+        studentAdapter = new StudentAdapter(studentList, this, false);
         binding.studentsRecyclerView.setAdapter(studentAdapter);
 
 
-        if (slotId != -1) {
-            fetchStudents(slotId);
-
+        if (appointment_id != -1) {
+            fetchStudents(appointment_id);
         }
-        binding.backButton.setOnClickListener(v ->{
-            finish();
-        });
 
+        binding.backButton.setOnClickListener(v -> finish());
 
         binding.cancelAppointmentBtn.setOnClickListener(v -> {
-            if (slotId == -1) {
-                Toast.makeText(this, "Invalid Slot ID", Toast.LENGTH_SHORT).show();
+            if (appointment_id == -1) {
+                Toast.makeText(this, "Invalid Appointment ID", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
-            Call<defaultResponse> call = api.cancelAppointmentsBySlot(slotId);
+            Call<defaultResponse> call = api.cancelAppointmentsByAppointmentId(appointment_id);
 
             call.enqueue(new Callback<defaultResponse>() {
                 @Override
                 public void onResponse(Call<defaultResponse> call, Response<defaultResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        Toast.makeText(selected_appointment.this,
-                                response.body().getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                        finish();
+                        KAlertDialog successDialog = new KAlertDialog(selected_appointment.this, true);
+                        successDialog.changeAlertType(KAlertDialog.SUCCESS_TYPE);
+                        successDialog.setTitleText("Successful")
+                                .setContentText(response.body().getMessage())
+                                .setConfirmText("OK")
+                                .confirmButtonColor(R.color.mainColor)
+                                .setConfirmClickListener(sweetAlertDialog -> {
+                                    sweetAlertDialog.dismissWithAnimation();
+                                    finish();
+                                })
+                                .show();
                     } else {
+                        KAlertDialog errorDialog = new KAlertDialog(selected_appointment.this, true);
+                        errorDialog.changeAlertType(KAlertDialog.ERROR_TYPE);
+                        errorDialog.setTitleText("Error")
+                                .setContentText("Failed to cancel appointment")
+                                .setConfirmText("OK")
+                                .confirmButtonColor(R.color.mainColor)
+                                .setConfirmClickListener(sweetAlertDialog -> {
+                                    sweetAlertDialog.dismissWithAnimation();
+                                })
+                                .show();
                         Log.d("selected_appointments", "response: " + response.body());
-                        Toast.makeText(selected_appointment.this,
-                                "Failed to cancel appointments",
-                                Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -112,9 +135,9 @@ public class selected_appointment extends AppCompatActivity {
         });
     }
 
-    private void fetchStudents(int slotId) {
+    private void fetchStudents(int appointment_id) {
         ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
-        Call<List<Students>> call = api.getStudentsBySlot(slotId);
+        Call<List<Students>> call = api.getStudentsByAppointment(appointment_id);
 
         call.enqueue(new Callback<List<Students>>() {
             @Override

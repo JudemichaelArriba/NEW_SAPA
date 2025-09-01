@@ -1,0 +1,25 @@
+[21-Aug-2025 10:10:53 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:10:53 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function real_escape_string() on null in C:\xampp\htdocs\android_api\get_upcomingAppointments.php:22
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:12:14 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:12:14 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function real_escape_string() on null in C:\xampp\htdocs\android_api\get_upcomingAppointments.php:22
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:13:20 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:13:20 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function real_escape_string() on null in C:\xampp\htdocs\android_api\get_upcomingAppointments.php:22
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 22
+[21-Aug-2025 10:18:36 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 24
+[21-Aug-2025 10:18:36 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function real_escape_string() on null in C:\xampp\htdocs\android_api\get_upcomingAppointments.php:24
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 24
+[21-Aug-2025 10:22:21 Europe/Berlin] PHP Warning:  Undefined variable $conn in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 24
+[21-Aug-2025 10:22:21 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function real_escape_string() on null in C:\xampp\htdocs\android_api\get_upcomingAppointments.php:24
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\android_api\get_upcomingAppointments.php on line 24

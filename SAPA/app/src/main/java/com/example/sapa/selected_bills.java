@@ -10,6 +10,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.developer.kalert.KAlertDialog;
 import com.example.sapa.ApiAndInterface.ApiClient;
 import com.example.sapa.ApiAndInterface.ApiInterface;
 import com.example.sapa.databinding.ActivitySelectedBillsBinding;
@@ -67,13 +68,15 @@ public class selected_bills extends AppCompatActivity {
                 double enteredAmount = Double.parseDouble(valueStr);
 
                 if (enteredAmount <= 0) {
-                    Toast.makeText(this, "Amount must be greater than 0", Toast.LENGTH_SHORT).show();
+                    showErrorDialog("Warning", "Amount must be greater than 0");
+
                     return;
                 } else if (enteredAmount < billAmount) {
-                    Toast.makeText(this, "Payment is not enough. Please pay the full amount.", Toast.LENGTH_SHORT).show();
+                    showErrorDialog("Warning", "Payment is not enough. Please pay the full amount.");
                     return;
                 } else if (enteredAmount > billAmount) {
-                    Toast.makeText(this, "Payment is too much. Enter the exact amount.", Toast.LENGTH_SHORT).show();
+
+                    showErrorDialog("Warning", "Payment is too much. Enter the exact amount.");
                     return;
                 }
 
@@ -101,5 +104,19 @@ public class selected_bills extends AppCompatActivity {
                 Toast.makeText(this, "Invalid amount format", Toast.LENGTH_SHORT).show();
             }
         });
+
+
     }
+
+    private void showErrorDialog(String title, String message) {
+        KAlertDialog errorDialog = new KAlertDialog(selected_bills.this, true);
+        errorDialog.changeAlertType(KAlertDialog.WARNING_TYPE);
+        errorDialog.setTitleText(title);
+        errorDialog.setContentText(message)
+                .setConfirmText("OK")
+                .confirmButtonColor(R.color.mainColor)
+                .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
+                .show();
+    }
+
 }
