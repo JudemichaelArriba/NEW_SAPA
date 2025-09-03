@@ -54,6 +54,8 @@ public class bills extends Fragment {
             intent.putExtra("BILL_AMOUNT", bill.getAmount());
             intent.putExtra("BILL_STATUS", bill.getStatus());
             intent.putExtra("BILL_ISSUED_AT", bill.getIssuedAt());
+            intent.putExtra("HOSPITAL_NAME", bill.getHospitalName());
+            intent.putExtra("SECTION_NAME", bill.getSectionName());
             startActivity(intent);
         });
         binding.billsView.setLayoutManager(new LinearLayoutManager(requireContext()));

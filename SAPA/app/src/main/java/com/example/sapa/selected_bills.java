@@ -25,6 +25,8 @@ public class selected_bills extends AppCompatActivity {
     private ActivitySelectedBillsBinding binding;
     private String billCode;
     private double billAmount;
+    private String hospitalName;
+    private String sectionName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +41,25 @@ public class selected_bills extends AppCompatActivity {
             return insets;
         });
 
+
         billCode = getIntent().getStringExtra("BILL_CODE");
         billAmount = getIntent().getDoubleExtra("BILL_AMOUNT", 0);
         String billStatus = getIntent().getStringExtra("BILL_STATUS");
         String issuedAt = getIntent().getStringExtra("BILL_ISSUED_AT");
-
+        hospitalName = getIntent().getStringExtra("HOSPITAL_NAME");
+        sectionName = getIntent().getStringExtra("SECTION_NAME");
+        Log.e("selectedBills", "hospitalName: " + hospitalName);
+        Log.e("selectedBills", "sectionName: " + sectionName);
         Log.e("selectedBills", "Bill code: " + billCode);
+
 
         binding.amountInput.setText(String.valueOf(billAmount));
         binding.totalAmount.setText("₱ " + billAmount);
-
+        binding.hospitalNameValue.setText(hospitalName != null ? hospitalName : "N/A");
+        binding.sectionNameValue.setText(sectionName != null ? sectionName : "N/A");
+        binding.backButton.setOnClickListener(v->{
+            finish();
+        });
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", MODE_PRIVATE);
         String userId = sharedPreferences.getString("coordinator_id", "");
 
@@ -69,17 +80,14 @@ public class selected_bills extends AppCompatActivity {
 
                 if (enteredAmount <= 0) {
                     showErrorDialog("Warning", "Amount must be greater than 0");
-
                     return;
                 } else if (enteredAmount < billAmount) {
                     showErrorDialog("Warning", "Payment is not enough. Please pay the full amount.");
                     return;
                 } else if (enteredAmount > billAmount) {
-
                     showErrorDialog("Warning", "Payment is too much. Enter the exact amount.");
                     return;
                 }
-
 
                 ApiInterface api = ApiClient.getClient(this).create(ApiInterface.class);
                 Call<defaultResponse> call = api.paySpecificBill(userId, billCode);
@@ -105,7 +113,6 @@ public class selected_bills extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void showErrorDialog(String title, String message) {
@@ -118,5 +125,4 @@ public class selected_bills extends AppCompatActivity {
                 .setConfirmClickListener(sweetAlertDialog -> sweetAlertDialog.dismissWithAnimation())
                 .show();
     }
-
 }

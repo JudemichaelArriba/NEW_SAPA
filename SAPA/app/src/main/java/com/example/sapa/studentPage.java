@@ -45,7 +45,7 @@ public class studentPage extends AppCompatActivity {
 
         RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new StudentAdapter(studentsList, this, false); // false = no multiselect
+        adapter = new StudentAdapter(studentsList, this, false);
         binding.recyclerView.setAdapter(adapter);
 
 

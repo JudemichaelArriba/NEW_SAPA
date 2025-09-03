@@ -5,7 +5,7 @@ public class hospitalSections {
     private String section_name;
     private String section_description;
     private String hospital_id;
-    private String hospital_name;  // ✅ Added hospital name
+    private String hospital_name;
     private double billing;
 
     public int getSection_id() {

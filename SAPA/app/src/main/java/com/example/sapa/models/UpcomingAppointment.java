@@ -38,12 +38,12 @@ public class UpcomingAppointment {
     private String sectionName;
 
     @SerializedName("student_ids")
-    private String studentIds; // Comma-separated student IDs
+    private String studentIds;
 
     @SerializedName("student_count")
     private int studentCount;
 
-    // Getters
+
 
     public int getAppointmentId() {
         return appointmentId;
